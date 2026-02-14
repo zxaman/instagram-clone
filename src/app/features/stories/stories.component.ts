@@ -1,4 +1,6 @@
 import { Component, inject, ViewChild, ElementRef, OnDestroy, signal, computed, effect } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
+import { ChevronLeft, ChevronRight, X } from '../../core/icons';
 import { users } from '../../../assets/data/users';
 import { stories } from '../../../assets/data/stories';
 import type { User } from '../../../assets/data/users';
@@ -11,10 +13,15 @@ const PROGRESS_TICK_MS = 50;
 @Component({
   selector: 'app-stories',
   standalone: true,
+  imports: [LucideAngularModule],
   templateUrl: './stories.component.html',
   styleUrl: './stories.component.scss',
 })
 export class StoriesComponent implements OnDestroy {
+  readonly ChevronLeft = ChevronLeft;
+  readonly ChevronRight = ChevronRight;
+  readonly X = X;
+
   private viewerService = inject(StoryViewerService);
 
   @ViewChild('scrollContainer') scrollContainerRef!: ElementRef<HTMLElement>;

@@ -726,6 +726,7 @@ export class HomeComponent {}
 | **SCSS = styling only** | All colors, spacing, flexbox, etc. go in SCSS. Use variables and mixins from `styles/`. |
 | **TS = logic only** | Data loading, click handlers, state. No style-related code. |
 | **Data in assets** | Mock data lives in `src/assets/data/`. Components import from there (or via a service later). |
+| **Icons in one place** | From Phase 2 onward, Lucide icons are imported from **`src/app/core/icons.ts`** so we can track and reuse them in one file. |
 
 You can repeat these in every video so viewers learn the habit.
 

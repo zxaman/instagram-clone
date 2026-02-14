@@ -1,7 +1,16 @@
 <div class="home">
   <app-stories />
-  <div class="home-placeholder">
-    <h1>Instagram Clone</h1>
-    <p>Phase 3 – Stories added. Feed next.</p>
-  </div>
+  <section class="home-feed">
+    @for (p of posts; track p.id) {
+      @let author = getUserById(p.userId);
+      @if (author) {
+        <app-post
+          [post]="p"
+          [user]="author"
+          [comments]="getCommentsForPost(p.id)"
+          [getUserById]="getUserByIdRef"
+        />
+      }
+    }
+  </section>
 </div>
