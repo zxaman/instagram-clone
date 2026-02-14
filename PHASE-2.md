@@ -82,7 +82,7 @@ We built the left sidebar to match **current Instagram web UI**:
   - **Logo:** An Instagram-style **camera icon** (SVG) that is always visible, and a **“Instagram”** text span that we show/hide with CSS (visible only when the left column is hovered).
   - A `<nav>` with a link for each `navItems` entry. Each link has an **icon** (SVG) and a **label** span. The label is hidden by default and shown on hover.
   - Each link uses `routerLink`, `routerLinkActive`, and `routerLinkActiveOptions` so “Home” is active only on `/`.
-  - Icons are inline SVG (home, reels, messages, search, explore, notifications, create, profile) – outline style, no extra image files.
+  - **Icons** use **Lucide** and are imported from the central **`src/app/core/icons.ts`** file: Camera (logo), Home, Clapperboard, MessageCircle, Search, Compass, Heart, SquarePlus, User. Component imports `LucideAngularModule` from `lucide-angular` and icon symbols from `../../core/icons`; template uses `[img]="Icon"`.
 
 #### `src/app/layout/left-sidebar/left-sidebar.component.scss`
 

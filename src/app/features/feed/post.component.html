@@ -1,0 +1,90 @@
+@let p = post();
+@let u = user();
+@let postComments = comments();
+@let getAuthor = getUserById();
+
+@if (p && u) {
+  <article class="post">
+    <header class="post__header">
+      <img
+        [src]="u.avatarUrl"
+        [alt]="u.displayName"
+        class="post__avatar"
+        width="32"
+        height="32"
+      />
+      <div class="post__header-info">
+        <span class="post__username">{{ u.username }}</span>
+        @if (u.isVerified) {
+          <lucide-icon [img]="BadgeCheck" class="post__verified" [size]="14" aria-label="Verified"></lucide-icon>
+        }
+        <span class="post__header-time">· {{ relativeTime(p.timestamp) }}</span>
+      </div>
+      <button type="button" class="post__more" aria-label="More options">
+        <lucide-icon [img]="MoreHorizontal" [size]="24"></lucide-icon>
+      </button>
+    </header>
+
+    <div class="post__image-wrap">
+      <img
+        [src]="p.imageUrl"
+        [alt]="p.caption || 'Post image'"
+        class="post__image"
+      />
+    </div>
+
+    <div class="post__actions">
+      <div class="post__actions-left">
+        <button
+          type="button"
+          class="post__action"
+          [class.post__action--active]="isLiked"
+          (click)="toggleLike()"
+          [attr.aria-pressed]="isLiked"
+          aria-label="Like"
+        >
+          <lucide-icon [img]="Heart" class="post__action-icon" [size]="24" [strokeWidth]="2"></lucide-icon>
+        </button>
+        <button type="button" class="post__action" aria-label="Comment">
+          <lucide-icon [img]="MessageCircle" class="post__action-icon" [size]="24"></lucide-icon>
+        </button>
+        <button type="button" class="post__action" aria-label="Share">
+          <lucide-icon [img]="Send" class="post__action-icon" [size]="24"></lucide-icon>
+        </button>
+      </div>
+      <button type="button" class="post__action post__action--save" aria-label="Save">
+        <lucide-icon [img]="Bookmark" class="post__action-icon" [size]="24"></lucide-icon>
+      </button>
+    </div>
+
+    @if (likesCount > 0) {
+      <p class="post__likes">{{ likesCount }} {{ likesCount === 1 ? 'like' : 'likes' }}</p>
+    }
+
+    <div class="post__caption">
+      <span class="post__caption-username">{{ u.username }}</span>
+      <span class="post__caption-text">{{ p.caption }}</span>
+    </div>
+
+    @if (postComments.length > 0) {
+      <button type="button" class="post__view-comments">
+        View all {{ p.commentsCount }} comments
+      </button>
+      <ul class="post__comments">
+        @for (comment of postComments; track comment.id) {
+          @let commentUser = getAuthor(comment.userId);
+          <li class="post__comment">
+            @if (commentUser) {
+              <span class="post__comment-username">{{ commentUser.username }}</span>
+            }
+            <span class="post__comment-text">{{ comment.text }}</span>
+          </li>
+        }
+      </ul>
+    }
+
+    <time class="post__time" [attr.datetime]="p.timestamp">
+      {{ relativeTime(p.timestamp) }}
+    </time>
+  </article>
+}

@@ -26,7 +26,7 @@ Data comes from **assets/data** (users, stories). Logic stays in TS, structure i
   - Rest: one item per **other** story (we filter out the current user’s story). Each has a **story ring** (gradient or gray if `seen`), avatar, and username below.
 - **Data:** `stories` and `users` are imported from assets. We use `getUserById()` to resolve each story’s user for avatar and username.
 - **Click:** Only stories that have `mediaUrl` open the viewer. "Your story" does not open the viewer.
-- **Viewer:** Full-screen overlay (backdrop + content). Shows story image, header with user avatar and username, and a close button. Backdrop click or close button sets `selectedStory` to `null`.
+- **Viewer:** Full-screen overlay (backdrop + content). Shows story image, header with user avatar and username, and a close button. Backdrop click or close button sets `selectedStory` to `null`. **Icons** (ChevronLeft, ChevronRight, X for close and strip arrows) are imported from **`src/app/core/icons.ts`**.
 
 ### Files we created
 
