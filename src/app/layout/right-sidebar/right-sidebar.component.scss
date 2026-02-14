@@ -1,0 +1,176 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.right-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: $space-6;
+  height: 100%;
+}
+
+.right-sidebar__user {
+  margin-bottom: $space-2;
+}
+
+.right-sidebar__header {
+  @include flex-between;
+  margin-bottom: $space-4;
+}
+
+.right-sidebar__title {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-secondary;
+}
+
+.right-sidebar__action {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+
+  &:hover {
+    color: $text-secondary;
+  }
+}
+
+.right-sidebar__suggestions {
+  // No border or divider below header – clean like reference
+}
+
+.right-sidebar__footer {
+  margin-top: auto;
+  padding-top: $space-6;
+}
+
+.right-sidebar__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-1 $space-2;
+  margin-bottom: $space-3;
+  font-size: $font-size-xs;
+  color: $text-muted;
+
+  a {
+    color: $text-muted;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.right-sidebar__dot {
+  color: $text-muted;
+  user-select: none;
+}
+
+.right-sidebar__copyright {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  margin: 0;
+}
+
+// Suggestions list – no lines between items, only vertical spacing (per reference)
+.suggestions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  // No border, no divider lines – uniform background
+}
+
+.suggestions-list__item {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  padding: $space-3 0;
+  min-height: 48px;
+  // No border-top, border-bottom, or any divider – clean spacing only
+}
+
+.suggestions-list__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.suggestions-list__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  gap: 2px;
+}
+
+.suggestions-list__username {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  @include truncate;
+}
+
+.suggestions-list__reason {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  @include truncate;
+}
+
+.suggestions-list__follow {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $accent;
+  flex-shrink: 0;
+
+  &:hover {
+    color: $accent-hover;
+  }
+}
+
+.user-card {
+  @include flex-center;
+  justify-content: flex-start;
+  gap: $space-3;
+  padding: $space-2 0;
+  border-radius: 8px;
+  transition: background-color 0.15s ease;
+}
+
+.user-card__avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.user-card__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.user-card__username {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  @include truncate;
+}
+
+.user-card__name {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  @include truncate;
+}
+
+.user-card__switch {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $accent;
+  flex-shrink: 0;
+
+  &:hover {
+    color: $accent-hover;
+  }
+}

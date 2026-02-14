@@ -1,0 +1,69 @@
+<div class="right-sidebar">
+  <section class="right-sidebar__user">
+    <div class="user-card">
+      <img
+        [src]="currentUser.avatarUrl"
+        [alt]="currentUser.displayName"
+        class="user-card__avatar"
+        width="56"
+        height="56"
+      />
+      <div class="user-card__info">
+        <span class="user-card__username">{{ currentUser.username }}</span>
+        <span class="user-card__name">{{ currentUser.displayName }}</span>
+      </div>
+      <a href="#" class="user-card__switch">Switch</a>
+    </div>
+  </section>
+  <section class="right-sidebar__suggestions">
+    <div class="right-sidebar__header">
+      <span class="right-sidebar__title">Suggested for you</span>
+      <a href="#" class="right-sidebar__action">See all</a>
+    </div>
+    <div class="suggestions-list">
+      @for (item of suggestionsList; track item.userId) {
+        @let user = getUserById(item.userId);
+        @if (user) {
+          <div class="suggestions-list__item">
+            <img
+              [src]="user.avatarUrl"
+              [alt]="user.displayName"
+              class="suggestions-list__avatar"
+              width="32"
+              height="32"
+            />
+            <div class="suggestions-list__info">
+              <span class="suggestions-list__username">{{ user.username }}</span>
+              <span class="suggestions-list__reason">{{ item.reason }}</span>
+            </div>
+            <button type="button" class="suggestions-list__follow">Follow</button>
+          </div>
+        }
+      }
+    </div>
+  </section>
+  <footer class="right-sidebar__footer">
+    <div class="right-sidebar__links">
+      <a href="#">About</a>
+      <span class="right-sidebar__dot">·</span>
+      <a href="#">Help</a>
+      <span class="right-sidebar__dot">·</span>
+      <a href="#">Press</a>
+      <span class="right-sidebar__dot">·</span>
+      <a href="#">API</a>
+      <span class="right-sidebar__dot">·</span>
+      <a href="#">Jobs</a>
+      <span class="right-sidebar__dot">·</span>
+      <a href="#">Privacy</a>
+      <span class="right-sidebar__dot">·</span>
+      <a href="#">Terms</a>
+      <span class="right-sidebar__dot">·</span>
+      <a href="#">Locations</a>
+      <span class="right-sidebar__dot">·</span>
+      <a href="#">Language</a>
+      <span class="right-sidebar__dot">·</span>
+      <a href="#">Meta Verified</a>
+    </div>
+    <p class="right-sidebar__copyright">© 2026 INSTAGRAM FROM META</p>
+  </footer>
+</div>

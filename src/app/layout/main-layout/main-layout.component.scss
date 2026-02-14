@@ -1,0 +1,81 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+  max-width: 100%;
+
+  &__left {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: $sidebar-width-collapsed;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid $border-primary;
+    background-color: $bg-primary;
+    padding: $space-4 $space-2;
+    z-index: 10;
+    transition: width 0.2s ease;
+
+    &:hover {
+      width: $sidebar-width;
+    }
+  }
+
+  &__center {
+    flex: 1;
+    min-width: 0;
+    margin-left: $sidebar-width-collapsed;
+    margin-right: $right-sidebar-width;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: $bg-primary;
+  }
+
+  &__right {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: $right-sidebar-width;
+    background-color: $bg-primary;
+    padding: $space-6 $space-4;
+    z-index: 10;
+    overflow-y: auto;
+  }
+}
+
+// Responsive: hide right sidebar on smaller screens
+@media (max-width: 1260px) {
+  .layout {
+    &__right {
+      display: none;
+    }
+
+    &__center {
+      margin-right: 0;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .layout {
+    &__left {
+      width: $sidebar-width-collapsed;
+      padding: $space-4 $space-2;
+
+      &:hover {
+        width: $sidebar-width-collapsed;
+      }
+    }
+
+    &__center {
+      margin-left: $sidebar-width-collapsed;
+    }
+  }
+}

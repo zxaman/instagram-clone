@@ -1,0 +1,21 @@
+@use '../../../styles/variables' as *;
+
+.placeholder {
+  width: 100%;
+  max-width: 400px;
+  padding: $space-10 $space-6;
+  text-align: center;
+}
+
+.placeholder__title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  margin: 0 0 $space-3;
+}
+
+.placeholder__text {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  margin: 0;
+}
