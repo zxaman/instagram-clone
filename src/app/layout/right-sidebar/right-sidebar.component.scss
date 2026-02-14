@@ -12,6 +12,17 @@
   margin-bottom: $space-2;
 }
 
+.right-sidebar__your-story {
+  margin-top: $space-2;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $accent;
+
+  &:hover {
+    color: $accent-hover;
+  }
+}
+
 .right-sidebar__header {
   @include flex-between;
   margin-bottom: $space-4;

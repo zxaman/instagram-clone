@@ -1,0 +1,121 @@
+<div class="stories">
+  <div class="stories__strip">
+    <button
+      type="button"
+      class="stories__arrow stories__arrow--left"
+      aria-label="Scroll stories left"
+      (click)="scrollStrip('left')"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <div class="stories__scroll" #scrollContainer>
+      @for (item of feedStories; track item.id) {
+        @let user = getUserById(item.userId);
+        @if (user) {
+          <div class="stories__item">
+            <button
+              type="button"
+              class="story-ring"
+              [class.story-ring--seen]="item.seen"
+              (click)="onStoryClick(item)"
+              [attr.aria-label]="'View story from ' + user.username"
+            >
+              <span class="story-ring__avatar-wrap">
+                <img
+                  [src]="user.avatarUrl"
+                  [alt]="user.displayName"
+                  class="story-ring__avatar"
+                  width="56"
+                  height="56"
+                />
+              </span>
+              <span class="stories__label">{{ user.username }}</span>
+            </button>
+          </div>
+        }
+      }
+    </div>
+    <button
+      type="button"
+      class="stories__arrow stories__arrow--right"
+      aria-label="Scroll stories right"
+      (click)="scrollStrip('right')"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+  </div>
+
+  @if (viewerActive && currentView) {
+    <div class="stories-viewer" role="dialog" aria-modal="true" aria-label="Story">
+      <div class="stories-viewer__backdrop" (click)="closeViewer()"></div>
+      <div class="stories-viewer__content">
+        <button
+          type="button"
+          class="stories-viewer__close"
+          aria-label="Close"
+          (click)="closeViewer()"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+
+        <div class="stories-viewer__progress">
+          <div class="stories-viewer__progress-bar" [style.width.%]="progressPercent()"></div>
+        </div>
+
+        @if (currentIndex > 0) {
+          <button
+            type="button"
+            class="stories-viewer__nav stories-viewer__nav--prev"
+            aria-label="Previous story"
+            (click)="goPrev()"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+        }
+        @if (currentIndex >= 0 && currentIndex < queueLength - 1) {
+          <button
+            type="button"
+            class="stories-viewer__nav stories-viewer__nav--next"
+            aria-label="Next story"
+            (click)="goNext()"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        }
+
+        <div class="stories-viewer__header">
+          <img
+            [src]="currentView!.user.avatarUrl"
+            [alt]="currentView!.user.displayName"
+            class="stories-viewer__avatar"
+            width="32"
+            height="32"
+          />
+          <span class="stories-viewer__username">{{ currentView!.user.username }}</span>
+        </div>
+        @if (currentView!.story.mediaUrl) {
+          <img
+            [src]="currentView!.story.mediaUrl"
+            [alt]="currentView!.user.username + ' story'"
+            class="stories-viewer__media"
+          />
+        } @else {
+          <div class="stories-viewer__placeholder">
+            <p>Your story</p>
+            <span>Add a photo or video to share with your story.</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
