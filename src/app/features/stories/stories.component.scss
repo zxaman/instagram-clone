@@ -1,0 +1,251 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.stories {
+  width: 100%;
+  max-width: $feed-max-width;
+  padding: $space-4 0;
+}
+
+.stories__strip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.stories__arrow {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  @include flex-center;
+  color: $text-primary;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid $border-primary;
+  z-index: 2;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.stories__arrow--left {
+  margin-right: $space-2;
+}
+
+.stories__arrow--right {
+  margin-left: $space-2;
+}
+
+.stories__scroll {
+  flex: 1;
+  display: flex;
+  gap: $space-4;
+  overflow-x: auto;
+  padding: $space-2 0 $space-2 $space-4;
+  min-width: 0;
+  @include hide-scrollbar;
+}
+
+.stories__item {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-2;
+}
+
+.stories__label {
+  font-size: $font-size-xs;
+  color: $text-primary;
+  max-width: 74px;
+  @include truncate;
+  text-align: center;
+}
+
+.story-ring {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-2;
+  padding: 0;
+  background: none;
+  color: inherit;
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+}
+
+.story-ring__avatar-wrap {
+  padding: 3px;
+  border-radius: 50%;
+  background: $story-ring-gradient;
+  flex-shrink: 0;
+}
+
+.story-ring--seen .story-ring__avatar-wrap {
+  background: $border-secondary;
+}
+
+.story-ring__avatar {
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid $bg-primary;
+  box-sizing: border-box;
+}
+
+// Story viewer overlay
+.stories-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-4;
+}
+
+.stories-viewer__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+}
+
+.stories-viewer__content {
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: $bg-secondary;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.stories-viewer__progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 3;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.stories-viewer__progress-bar {
+  height: 100%;
+  background-color: $text-primary;
+  transition: width 50ms linear;
+}
+
+.stories-viewer__close {
+  position: absolute;
+  top: $space-4;
+  right: $space-4;
+  z-index: 4;
+  width: 36px;
+  height: 36px;
+  @include flex-center;
+  color: $text-primary;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.4);
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+.stories-viewer__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  @include flex-center;
+  color: $text-primary;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.stories-viewer__nav--prev {
+  left: $space-4;
+}
+
+.stories-viewer__nav--next {
+  right: $space-4;
+}
+
+.stories-viewer__header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-4 $space-4 $space-4 $space-4;
+  padding-top: $space-6;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+}
+
+.stories-viewer__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid $accent;
+}
+
+.stories-viewer__username {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+}
+
+.stories-viewer__media {
+  max-width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+  display: block;
+}
+
+.stories-viewer__placeholder {
+  padding: $space-10;
+  text-align: center;
+  color: $text-secondary;
+
+  p {
+    margin: 0 0 $space-2;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+  }
+
+  span {
+    font-size: $font-size-sm;
+  }
+}
