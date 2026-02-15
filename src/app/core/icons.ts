@@ -29,6 +29,7 @@ export {
   ChevronLeft,
   ChevronRight,
   X,
+  CheckCheck,
 } from 'lucide-angular';
 
 /** List of icon names in use – for documentation and tracking. */
@@ -49,4 +50,5 @@ export const ICONS_IN_USE = [
   'ChevronLeft',
   'ChevronRight',
   'X',
+  'CheckCheck',
 ] as const;
