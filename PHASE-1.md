@@ -727,6 +727,7 @@ export class HomeComponent {}
 | **TS = logic only** | Data loading, click handlers, state. No style-related code. |
 | **Data in assets** | Mock data lives in `src/assets/data/`. Components import from there (or via a service later). |
 | **Icons in one place** | From Phase 2 onward, Lucide icons are imported from **`src/app/core/icons.ts`** so we can track and reuse them in one file. |
+| **SVGs** | No inline SVG in components. Icons via Lucide (`core/icons.ts`). Any custom SVG goes in **`src/app/core/svgs.ts`** (or `assets/svg/`). |
 
 You can repeat these in every video so viewers learn the habit.
 

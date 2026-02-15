@@ -1,0 +1,251 @@
+@use '../../../styles/variables' as *;
+
+.search-sidebar {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.search-sidebar__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
+}
+
+.search-sidebar__panel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: min(400px, 100vw - 48px);
+  background: $bg-primary;
+  border-right: 1px solid $border-primary;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  animation: search-sidebar-in 0.2s ease;
+}
+
+@keyframes search-sidebar-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.search-sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-4 $space-4 $space-3;
+  flex-shrink: 0;
+}
+
+.search-sidebar__title {
+  margin: 0;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+}
+
+.search-sidebar__close {
+  background: none;
+  border: none;
+  color: $text-primary;
+  padding: $space-2;
+  cursor: pointer;
+  border-radius: 4px;
+
+  &:hover {
+    background: $bg-hover;
+  }
+}
+
+.search-sidebar__input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 $space-4 $space-4;
+  flex-shrink: 0;
+}
+
+.search-sidebar__input-icon {
+  position: absolute;
+  left: $space-4 + 12px;
+  color: $text-muted;
+  pointer-events: none;
+}
+
+.search-sidebar__input {
+  width: 100%;
+  padding: $space-3 $space-10 $space-3 $space-10;
+  font-size: $font-size-sm;
+  color: $text-primary;
+  background: $bg-secondary;
+  border: 1px solid $border-primary;
+  border-radius: 8px;
+  outline: none;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:focus {
+    border-color: $border-secondary;
+  }
+}
+
+.search-sidebar__clear {
+  position: absolute;
+  right: $space-4 + 8px;
+  background: none;
+  border: none;
+  color: $text-muted;
+  padding: $space-1;
+  cursor: pointer;
+  border-radius: 4px;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+.search-sidebar__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 $space-4 $space-4;
+}
+
+.search-sidebar__recent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $space-3;
+}
+
+.search-sidebar__label {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-secondary;
+}
+
+.search-sidebar__clear-all {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $accent;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    color: $accent-hover;
+  }
+}
+
+.search-sidebar__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.search-sidebar__item {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 0;
+  border-bottom: 1px solid $border-primary;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.search-sidebar__item-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: $space-4;
+  min-width: 0;
+  padding: $space-2 0;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.search-sidebar__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.search-sidebar__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.search-sidebar__username {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+}
+
+.search-sidebar__name {
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+.search-sidebar__follow {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $accent;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:hover {
+    color: $accent-hover;
+  }
+}
+
+.search-sidebar__remove {
+  background: none;
+  border: none;
+  color: $text-muted;
+  padding: $space-2;
+  cursor: pointer;
+  border-radius: 4px;
+  flex-shrink: 0;
+
+  &:hover {
+    color: $text-primary;
+    background: $bg-hover;
+  }
+}
+
+.search-sidebar__empty,
+.search-sidebar__hint {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $text-muted;
+}
+
+.search-sidebar__recent .search-sidebar__label {
+  margin-bottom: 0;
+}

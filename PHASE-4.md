@@ -63,6 +63,7 @@ This document explains **what we did in Phase 4**: adding the **feed** with a po
 src/app/
 ├── core/
 │   ├── icons.ts              (central Lucide icon registry + ICONS_IN_USE)
+│   ├── svgs.ts               (custom SVG registry; use Lucide via icons.ts)
 │   └── story-viewer.service.ts
 ├── features/
 │   ├── home/
@@ -105,10 +106,481 @@ To add or track icons: edit `core/icons.ts` (add to the `export { ... }` and to 
 | **TS = logic**       | Data from assets; like state (signals + effect); relative time; parent passes post, user, comments, getUserById. |
 | **Data in assets**   | `posts`, `comments`, and `users` from `assets/data`. |
 | **Icons**            | Lucide icons imported from `src/app/core/icons.ts`; components use `LucideAngularModule` and `[img]="Icon"` in template. |
+| **SVGs**             | No inline SVG in components. Custom SVGs (if needed) go in `src/app/core/svgs.ts`. |
 
 ---
 
-## 6. How to Run and What to See
+## 6. Complete Code for Phase 4 (Copy Exactly)
+
+---
+
+### New in Phase 4: `src/app/features/feed/post.component.ts`
+
+```ts
+import { Component, input, signal, effect } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
+import {
+  Heart,
+  MessageCircle,
+  Send,
+  Bookmark,
+  MoreHorizontal,
+  BadgeCheck,
+} from '../../core/icons';
+import type { Post, User, Comment } from '../../../assets/data';
+
+@Component({
+  selector: 'app-post',
+  standalone: true,
+  imports: [LucideAngularModule],
+  templateUrl: './post.component.html',
+  styleUrl: './post.component.scss',
+})
+export class PostComponent {
+  readonly Heart = Heart;
+  readonly MessageCircle = MessageCircle;
+  readonly Send = Send;
+  readonly Bookmark = Bookmark;
+  readonly MoreHorizontal = MoreHorizontal;
+  readonly BadgeCheck = BadgeCheck;
+
+  post = input.required<Post>();
+  user = input.required<User>();
+  comments = input<Comment[]>([]);
+  getUserById = input.required<(id: string) => User | undefined>();
+
+  private liked = signal<boolean>(false);
+  private likeCount = signal<number>(0);
+
+  constructor() {
+    effect(() => {
+      const p = this.post();
+      if (p) {
+        this.liked.set(p.isLiked ?? false);
+        this.likeCount.set(p.likesCount ?? 0);
+      }
+    });
+  }
+
+  get isLiked(): boolean {
+    return this.liked();
+  }
+
+  get likesCount(): number {
+    return this.likeCount();
+  }
+
+  toggleLike(): void {
+    this.liked.update((v) => !v);
+    this.likeCount.update((c) => (this.liked() ? c + 1 : Math.max(0, c - 1)));
+  }
+
+  relativeTime(iso: string): string {
+    const d = new Date(iso);
+    const now = new Date();
+    const sec = Math.floor((now.getTime() - d.getTime()) / 1000);
+    if (sec < 60) return 'Just now';
+    if (sec < 3600) return `${Math.floor(sec / 60)}m`;
+    if (sec < 86400) return `${Math.floor(sec / 3600)}h`;
+    if (sec < 2592000) return `${Math.floor(sec / 86400)}d`;
+    return d.toLocaleDateString();
+  }
+}
+```
+
+---
+
+### New in Phase 4: `src/app/features/feed/post.component.html`
+
+```html
+@let p = post();
+@let u = user();
+@let postComments = comments();
+@let getAuthor = getUserById();
+
+@if (p && u) {
+  <article class="post">
+    <header class="post__header">
+      <img
+        [src]="u.avatarUrl"
+        [alt]="u.displayName"
+        class="post__avatar"
+        width="32"
+        height="32"
+      />
+      <div class="post__header-info">
+        <span class="post__username">{{ u.username }}</span>
+        @if (u.isVerified) {
+          <lucide-icon [img]="BadgeCheck" class="post__verified" [size]="14" aria-label="Verified"></lucide-icon>
+        }
+        <span class="post__header-time">· {{ relativeTime(p.timestamp) }}</span>
+      </div>
+      <button type="button" class="post__more" aria-label="More options">
+        <lucide-icon [img]="MoreHorizontal" [size]="24"></lucide-icon>
+      </button>
+    </header>
+
+    <div class="post__image-wrap">
+      <img
+        [src]="p.imageUrl"
+        [alt]="p.caption || 'Post image'"
+        class="post__image"
+      />
+    </div>
+
+    <div class="post__actions">
+      <div class="post__actions-left">
+        <button
+          type="button"
+          class="post__action"
+          [class.post__action--active]="isLiked"
+          (click)="toggleLike()"
+          [attr.aria-pressed]="isLiked"
+          aria-label="Like"
+        >
+          <lucide-icon [img]="Heart" class="post__action-icon" [size]="24" [strokeWidth]="2"></lucide-icon>
+        </button>
+        <button type="button" class="post__action" aria-label="Comment">
+          <lucide-icon [img]="MessageCircle" class="post__action-icon" [size]="24"></lucide-icon>
+        </button>
+        <button type="button" class="post__action" aria-label="Share">
+          <lucide-icon [img]="Send" class="post__action-icon" [size]="24"></lucide-icon>
+        </button>
+      </div>
+      <button type="button" class="post__action post__action--save" aria-label="Save">
+        <lucide-icon [img]="Bookmark" class="post__action-icon" [size]="24"></lucide-icon>
+      </button>
+    </div>
+
+    @if (likesCount > 0) {
+      <p class="post__likes">{{ likesCount }} {{ likesCount === 1 ? 'like' : 'likes' }}</p>
+    }
+
+    <div class="post__caption">
+      <span class="post__caption-username">{{ u.username }}</span>
+      <span class="post__caption-text">{{ p.caption }}</span>
+    </div>
+
+    @if (postComments.length > 0) {
+      <button type="button" class="post__view-comments">
+        View all {{ p.commentsCount }} comments
+      </button>
+      <ul class="post__comments">
+        @for (comment of postComments; track comment.id) {
+          @let commentUser = getAuthor(comment.userId);
+          <li class="post__comment">
+            @if (commentUser) {
+              <span class="post__comment-username">{{ commentUser.username }}</span>
+            }
+            <span class="post__comment-text">{{ comment.text }}</span>
+          </li>
+        }
+      </ul>
+    }
+
+    <time class="post__time" [attr.datetime]="p.timestamp">
+      {{ relativeTime(p.timestamp) }}
+    </time>
+  </article>
+}
+```
+
+---
+
+### New in Phase 4: `src/app/features/feed/post.component.scss`
+
+```scss
+@use '../../../styles/variables' as *;
+
+.post {
+  background: $bg-primary;
+  border: 1px solid $border-primary;
+  border-radius: 8px;
+  margin-bottom: $space-6;
+  overflow: hidden;
+}
+
+.post__header {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  padding: $space-3 $space-4;
+}
+
+.post__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.post__header-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.post__username {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+}
+
+.post__verified {
+  color: $accent;
+  flex-shrink: 0;
+}
+
+.post__header-time {
+  color: $text-muted;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-normal;
+}
+
+.post__more {
+  background: none;
+  border: none;
+  color: $text-primary;
+  padding: $space-2;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: $bg-hover;
+  }
+}
+
+.post__image-wrap {
+  width: 100%;
+  aspect-ratio: 1;
+  background: $bg-secondary;
+}
+
+.post__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.post__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-2 $space-4 $space-2 $space-2;
+}
+
+.post__actions-left {
+  display: flex;
+  align-items: center;
+  gap: $space-4;
+}
+
+.post__action {
+  background: none;
+  border: none;
+  color: $text-primary;
+  padding: $space-2;
+  cursor: pointer;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &--active {
+    color: $error;
+
+    .post__action-icon svg {
+      fill: currentColor;
+    }
+  }
+
+  &--save {
+    margin-left: auto;
+  }
+}
+
+.post__action-icon {
+  display: inline-flex;
+}
+
+.post__likes {
+  margin: 0 $space-4 $space-2;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+}
+
+.post__caption {
+  padding: 0 $space-4 $space-2;
+  font-size: $font-size-sm;
+  color: $text-primary;
+  line-height: 1.4;
+}
+
+.post__caption-username {
+  font-weight: $font-weight-semibold;
+  margin-right: $space-2;
+}
+
+.post__caption-text {
+  font-weight: $font-weight-normal;
+}
+
+.post__view-comments {
+  background: none;
+  border: none;
+  color: $text-muted;
+  font-size: $font-size-sm;
+  padding: 0 $space-4 $space-2;
+  cursor: pointer;
+  margin: 0;
+  display: block;
+  text-align: left;
+
+  &:hover {
+    color: $text-secondary;
+  }
+}
+
+.post__comments {
+  list-style: none;
+  margin: 0 0 $space-2;
+  padding: 0 $space-4;
+}
+
+.post__comment {
+  font-size: $font-size-sm;
+  color: $text-primary;
+  margin-bottom: $space-2;
+  line-height: 1.4;
+}
+
+.post__comment-username {
+  font-weight: $font-weight-semibold;
+  margin-right: $space-2;
+}
+
+.post__time {
+  display: block;
+  padding: 0 $space-4 $space-4;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  text-transform: uppercase;
+}
+```
+
+---
+
+### Updated in Phase 4: `src/app/features/home/home.component.ts` (complete)
+
+```ts
+import { Component } from '@angular/core';
+import { StoriesComponent } from '../stories/stories.component';
+import { PostComponent } from '../feed/post.component';
+import { posts } from '../../../assets/data/posts';
+import { comments } from '../../../assets/data/comments';
+import { users } from '../../../assets/data/users';
+import type { User } from '../../../assets/data';
+import type { Comment } from '../../../assets/data';
+
+@Component({
+  selector: 'app-home',
+  standalone: true,
+  imports: [StoriesComponent, PostComponent],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss',
+})
+export class HomeComponent {
+  posts = posts;
+
+  getUserById(id: string): User | undefined {
+    return users.find((u) => u.id === id);
+  }
+
+  getUserByIdRef = (id: string): User | undefined => this.getUserById(id);
+
+  getCommentsForPost(postId: string): Comment[] {
+    return comments.filter((c) => c.postId === postId);
+  }
+}
+```
+
+---
+
+### Updated in Phase 4: `src/app/features/home/home.component.html` (complete)
+
+```html
+<div class="home">
+  <app-stories />
+  <section class="home-feed">
+    @for (p of posts; track p.id) {
+      @let author = getUserById(p.userId);
+      @if (author) {
+        <app-post
+          [post]="p"
+          [user]="author"
+          [comments]="getCommentsForPost(p.id)"
+          [getUserById]="getUserByIdRef"
+        />
+      }
+    }
+  </section>
+</div>
+```
+
+---
+
+### Updated in Phase 4: `src/app/features/home/home.component.scss` (complete)
+
+```scss
+@use '../../../styles/variables' as *;
+
+.home {
+  width: 100%;
+  max-width: $feed-max-width;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home-feed {
+  width: 100%;
+}
+
+.home-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $space-10 $space-6;
+
+  h1 {
+    margin: 0 0 $space-4;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+  }
+
+  p {
+    margin: 0;
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+}
+```
+
+---
+
+## 7. How to Run and What to See
 
 ```bash
 cd instagram-clone
@@ -124,7 +596,7 @@ npm start
 
 ## 7. What’s Next (Phase 5)
 
-Phase 5 could add: **direct messages** (messages list and chat UI), **search** (search bar and results), or **notifications** (notification list and mark-as-read). Choose one and we can define it in a PHASE-5.md.
+Phase 5 adds **Search** (search bar and user results). See PHASE-5.md. Phase 6 could add **direct messages** or **notifications**.
 
 ---
 

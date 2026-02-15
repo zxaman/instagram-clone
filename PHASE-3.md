@@ -54,16 +54,23 @@ Data comes from **assets/data** (users, stories). Logic stays in TS, structure i
 ## 3. Folder Structure After Phase 3
 
 ```
-src/app/features/
-├── home/
-│   ├── home.component.ts    (updated – imports StoriesComponent)
-│   ├── home.component.html  (updated – app-stories + placeholder)
-│   └── home.component.scss  (updated – .home wrapper)
-├── stories/                  (new)
-│   ├── stories.component.ts
-│   ├── stories.component.html
-│   └── stories.component.scss
-└── placeholder/
+src/app/
+├── core/
+│   ├── story-viewer.service.ts   (new)
+│   ├── icons.ts
+│   └── svgs.ts                   (custom SVG registry; no inline SVG)
+├── features/
+│   ├── home/
+│   │   ├── home.component.ts    (updated – imports StoriesComponent)
+│   │   ├── home.component.html  (updated – app-stories + placeholder)
+│   │   └── home.component.scss  (updated – .home wrapper)
+│   ├── stories/                  (new)
+│   │   ├── stories.component.ts
+│   │   ├── stories.component.html
+│   │   └── stories.component.scss
+│   └── placeholder/
+│       └── ...
+└── layout/
     └── ...
 ```
 
@@ -75,55 +82,260 @@ src/app/features/
 |-------------------|----------------|
 | **HTML = structure** | Story items, buttons, viewer overlay, no inline styles. |
 | **SCSS = styling**   | Story ring, scroll, viewer layout and theme variables. |
-| **TS = logic**       | Data from assets, `getUserById`, `otherStories`, click and close. |
+| **TS = logic**       | Data from assets, `getUserById`, `feedStories`, StoryViewerService, progress timer. |
 | **Data in assets**   | `users` and `stories` from `assets/data`. |
+| **Icons / SVGs**     | Use Lucide via `src/app/core/icons.ts` (ChevronLeft, ChevronRight, X). No inline SVG; custom SVGs go in `src/app/core/svgs.ts`. |
 
 ---
 
 ## 5. Complete Code for Phase 3 (Copy Exactly)
 
-**Use this after Phase 2.** For files that already existed and were updated (Home), the code below is the **complete** file (Phase 1 + 2 + 3). For new files (Stories), create them and paste.
+**Use this after Phase 2.** New files: `story-viewer.service.ts`, Stories component. Icons come from `core/icons.ts` (no inline SVG).
+
+---
+
+### New in Phase 3: `src/app/core/story-viewer.service.ts`
+
+```ts
+import { Injectable, signal, computed } from '@angular/core';
+import type { User } from '../../assets/data/users';
+import type { Story } from '../../assets/data/stories';
+
+export interface StoryView {
+  story: Story;
+  user: User;
+}
+
+@Injectable({ providedIn: 'root' })
+export class StoryViewerService {
+  private currentView = signal<StoryView | null>(null);
+
+  get currentViewSignal() {
+    return this.currentView;
+  }
+
+  private storyQueue: StoryView[] = [];
+
+  readonly active = computed(() => this.currentView() !== null);
+
+  getCurrent(): StoryView | null {
+    return this.currentView();
+  }
+
+  getQueue(): StoryView[] {
+    return this.storyQueue;
+  }
+
+  openStory(story: Story, user: User, allStories: StoryView[]): void {
+    this.storyQueue = allStories;
+    this.currentView.set({ story, user });
+  }
+
+  openYourStory(user: User, yourStory: Story | null): void {
+    if (yourStory) {
+      this.storyQueue = [{ story: yourStory, user }];
+      this.currentView.set({ story: yourStory, user });
+    }
+  }
+
+  close(): void {
+    this.currentView.set(null);
+    this.storyQueue = [];
+  }
+
+  goNext(): void {
+    const current = this.currentView();
+    if (!current || this.storyQueue.length === 0) return;
+    const idx = this.storyQueue.findIndex(
+      (v) => v.story.id === current.story.id && v.user.id === current.user.id
+    );
+    if (idx < 0 || idx >= this.storyQueue.length - 1) {
+      this.close();
+      return;
+    }
+    this.currentView.set(this.storyQueue[idx + 1]);
+  }
+
+  goPrev(): void {
+    const current = this.currentView();
+    if (!current || this.storyQueue.length === 0) return;
+    const idx = this.storyQueue.findIndex(
+      (v) => v.story.id === current.story.id && v.user.id === current.user.id
+    );
+    if (idx <= 0) return;
+    this.currentView.set(this.storyQueue[idx - 1]);
+  }
+
+  getCurrentIndex(): number {
+    const current = this.currentView();
+    if (!current) return -1;
+    return this.storyQueue.findIndex(
+      (v) => v.story.id === current.story.id && v.user.id === current.user.id
+    );
+  }
+}
+```
 
 ---
 
 ### New in Phase 3: `src/app/features/stories/stories.component.ts`
 
 ```ts
-import { Component } from '@angular/core';
+import { Component, inject, ViewChild, ElementRef, OnDestroy, signal, computed, effect } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
+import { ChevronLeft, ChevronRight, X } from '../../core/icons';
 import { users } from '../../../assets/data/users';
 import { stories } from '../../../assets/data/stories';
 import type { User } from '../../../assets/data/users';
 import type { Story } from '../../../assets/data/stories';
+import { StoryViewerService } from '../../core/story-viewer.service';
+
+const STORY_DURATION_MS = 7000;
+const PROGRESS_TICK_MS = 50;
 
 @Component({
   selector: 'app-stories',
   standalone: true,
+  imports: [LucideAngularModule],
   templateUrl: './stories.component.html',
   styleUrl: './stories.component.scss',
 })
-export class StoriesComponent {
+export class StoriesComponent implements OnDestroy {
+  readonly ChevronLeft = ChevronLeft;
+  readonly ChevronRight = ChevronRight;
+  readonly X = X;
+
+  private viewerService = inject(StoryViewerService);
+
+  @ViewChild('scrollContainer') scrollContainerRef!: ElementRef<HTMLElement>;
+
   currentUser = users[4];
   storiesList = stories;
+  private progressTimer: ReturnType<typeof setInterval> | null = null;
+  private progressTickTimer: ReturnType<typeof setInterval> | null = null;
+  progressElapsed = signal(0);
+
+  constructor() {
+    effect(() => {
+      const view = this.viewerService.currentViewSignal();
+      if (view?.story.mediaUrl) {
+        this.progressElapsed.set(0);
+        this.startProgressTimer();
+      }
+    });
+  }
+
+  progressPercent = computed(() => {
+    const elapsed = this.progressElapsed();
+    return Math.min(100, (elapsed / STORY_DURATION_MS) * 100);
+  });
 
   getUserById(id: string): User | undefined {
     return users.find((u) => u.id === id);
   }
 
-  get otherStories(): Story[] {
+  get feedStories(): Story[] {
     return this.storiesList.filter((s) => s.userId !== this.currentUser.id);
+  }
+
+  get storyViewsForViewer(): { story: Story; user: User }[] {
+    return this.feedStories
+      .filter((s) => s.mediaUrl)
+      .map((s) => ({
+        story: s,
+        user: this.getUserById(s.userId)!,
+      }))
+      .filter((v) => v.user);
   }
 
   onStoryClick(story: Story): void {
     const user = this.getUserById(story.userId);
     if (user && story.mediaUrl) {
-      this.selectedStory = { story, user };
+      this.viewerService.openStory(story, user, this.storyViewsForViewer);
     }
   }
 
-  selectedStory: { story: Story; user: User } | null = null;
+  scrollStrip(direction: 'left' | 'right'): void {
+    const el = this.scrollContainerRef?.nativeElement;
+    if (!el) return;
+    const step = 200;
+    el.scrollBy({ left: direction === 'left' ? -step : step, behavior: 'smooth' });
+  }
+
+  ngOnDestroy(): void {
+    this.clearProgressTimer();
+    this.clearProgressTick();
+  }
+
+  get viewerActive(): boolean {
+    return this.viewerService.active();
+  }
+
+  get currentView(): { story: Story; user: User } | null {
+    return this.viewerService.getCurrent();
+  }
+
+  get currentIndex(): number {
+    return this.viewerService.getCurrentIndex();
+  }
+
+  get queueLength(): number {
+    return this.viewerService.getQueue().length;
+  }
 
   closeViewer(): void {
-    this.selectedStory = null;
+    this.clearProgressTimer();
+    this.viewerService.close();
+  }
+
+  goPrev(): void {
+    this.progressElapsed.set(0);
+    this.viewerService.goPrev();
+  }
+
+  goNext(): void {
+    this.progressElapsed.set(0);
+    this.viewerService.goNext();
+    if (!this.viewerService.getCurrent()) {
+      this.clearProgressTimer();
+    }
+  }
+
+  private startProgressTimer(): void {
+    this.clearProgressTimer();
+    this.clearProgressTick();
+    this.progressElapsed.set(0);
+    this.progressTickTimer = setInterval(() => {
+      const next = this.progressElapsed() + PROGRESS_TICK_MS;
+      this.progressElapsed.set(next);
+      if (next >= STORY_DURATION_MS) {
+        this.clearProgressTick();
+      }
+    }, PROGRESS_TICK_MS);
+    this.progressTimer = setInterval(() => {
+      this.clearProgressTick();
+      this.viewerService.goNext();
+      if (this.viewerService.getCurrent()) {
+        this.progressElapsed.set(0);
+        this.startProgressTimer();
+      } else {
+        this.clearProgressTimer();
+      }
+    }, STORY_DURATION_MS);
+  }
+
+  private clearProgressTimer(): void {
+    if (this.progressTimer) {
+      clearInterval(this.progressTimer);
+      this.progressTimer = null;
+    }
+  }
+
+  private clearProgressTick(): void {
+    if (this.progressTickTimer) {
+      clearInterval(this.progressTickTimer);
+      this.progressTickTimer = null;
+    }
   }
 }
 ```
@@ -134,49 +346,53 @@ export class StoriesComponent {
 
 ```html
 <div class="stories">
-  <div class="stories__scroll">
-    <div class="stories__item stories__item--your">
-      <button type="button" class="story-ring story-ring--your" aria-label="Your story">
-        <span class="story-ring__avatar-wrap">
-          <img
-            [src]="currentUser.avatarUrl"
-            [alt]="currentUser.displayName"
-            class="story-ring__avatar"
-            width="56"
-            height="56"
-          />
-        </span>
-        <span class="stories__label">Your story</span>
-      </button>
-    </div>
-    @for (item of otherStories; track item.id) {
-      @let user = getUserById(item.userId);
-      @if (user) {
-        <div class="stories__item">
-          <button
-            type="button"
-            class="story-ring"
-            [class.story-ring--seen]="item.seen"
-            (click)="onStoryClick(item)"
-            [attr.aria-label]="'View story from ' + user.username"
-          >
-            <span class="story-ring__avatar-wrap">
-              <img
-                [src]="user.avatarUrl"
-                [alt]="user.displayName"
-                class="story-ring__avatar"
-                width="56"
-                height="56"
-              />
-            </span>
-            <span class="stories__label">{{ user.username }}</span>
-          </button>
-        </div>
+  <div class="stories__strip">
+    <button
+      type="button"
+      class="stories__arrow stories__arrow--left"
+      aria-label="Scroll stories left"
+      (click)="scrollStrip('left')"
+    >
+      <lucide-icon [img]="ChevronLeft" [size]="24"></lucide-icon>
+    </button>
+    <div class="stories__scroll" #scrollContainer>
+      @for (item of feedStories; track item.id) {
+        @let user = getUserById(item.userId);
+        @if (user) {
+          <div class="stories__item">
+            <button
+              type="button"
+              class="story-ring"
+              [class.story-ring--seen]="item.seen"
+              (click)="onStoryClick(item)"
+              [attr.aria-label]="'View story from ' + user.username"
+            >
+              <span class="story-ring__avatar-wrap">
+                <img
+                  [src]="user.avatarUrl"
+                  [alt]="user.displayName"
+                  class="story-ring__avatar"
+                  width="56"
+                  height="56"
+                />
+              </span>
+              <span class="stories__label">{{ user.username }}</span>
+            </button>
+          </div>
+        }
       }
-    }
+    </div>
+    <button
+      type="button"
+      class="stories__arrow stories__arrow--right"
+      aria-label="Scroll stories right"
+      (click)="scrollStrip('right')"
+    >
+      <lucide-icon [img]="ChevronRight" [size]="24"></lucide-icon>
+    </button>
   </div>
 
-  @if (selectedStory) {
+  @if (viewerActive && currentView) {
     <div class="stories-viewer" role="dialog" aria-modal="true" aria-label="Story">
       <div class="stories-viewer__backdrop" (click)="closeViewer()"></div>
       <div class="stories-viewer__content">
@@ -186,25 +402,56 @@ export class StoriesComponent {
           aria-label="Close"
           (click)="closeViewer()"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
+          <lucide-icon [img]="X" [size]="24"></lucide-icon>
         </button>
+
+        <div class="stories-viewer__progress">
+          <div class="stories-viewer__progress-bar" [style.width.%]="progressPercent()"></div>
+        </div>
+
+        @if (currentIndex > 0) {
+          <button
+            type="button"
+            class="stories-viewer__nav stories-viewer__nav--prev"
+            aria-label="Previous story"
+            (click)="goPrev()"
+          >
+            <lucide-icon [img]="ChevronLeft" [size]="24"></lucide-icon>
+          </button>
+        }
+        @if (currentIndex >= 0 && currentIndex < queueLength - 1) {
+          <button
+            type="button"
+            class="stories-viewer__nav stories-viewer__nav--next"
+            aria-label="Next story"
+            (click)="goNext()"
+          >
+            <lucide-icon [img]="ChevronRight" [size]="24"></lucide-icon>
+          </button>
+        }
+
         <div class="stories-viewer__header">
           <img
-            [src]="selectedStory.user.avatarUrl"
-            [alt]="selectedStory.user.displayName"
+            [src]="currentView!.user.avatarUrl"
+            [alt]="currentView!.user.displayName"
             class="stories-viewer__avatar"
             width="32"
             height="32"
           />
-          <span class="stories-viewer__username">{{ selectedStory.user.username }}</span>
+          <span class="stories-viewer__username">{{ currentView!.user.username }}</span>
         </div>
-        <img
-          [src]="selectedStory.story.mediaUrl"
-          [alt]="selectedStory.user.username + ' story'"
-          class="stories-viewer__media"
-        />
+        @if (currentView!.story.mediaUrl) {
+          <img
+            [src]="currentView!.story.mediaUrl"
+            [alt]="currentView!.user.username + ' story'"
+            class="stories-viewer__media"
+          />
+        } @else {
+          <div class="stories-viewer__placeholder">
+            <p>Your story</p>
+            <span>Add a photo or video to share with your story.</span>
+          </div>
+        }
       </div>
     </div>
   }
@@ -225,11 +472,49 @@ export class StoriesComponent {
   padding: $space-4 0;
 }
 
+.stories__strip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.stories__arrow {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  @include flex-center;
+  color: $text-primary;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid $border-primary;
+  z-index: 2;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.stories__arrow--left {
+  margin-right: $space-2;
+}
+
+.stories__arrow--right {
+  margin-left: $space-2;
+}
+
 .stories__scroll {
+  flex: 1;
   display: flex;
   gap: $space-4;
   overflow-x: auto;
   padding: $space-2 0 $space-2 $space-4;
+  min-width: 0;
   @include hide-scrollbar;
 }
 
@@ -239,12 +524,6 @@ export class StoriesComponent {
   flex-direction: column;
   align-items: center;
   gap: $space-2;
-}
-
-.stories__item--your {
-  .story-ring--your .story-ring__avatar-wrap {
-    border: 2px solid $border-primary;
-  }
 }
 
 .stories__label {
@@ -319,13 +598,29 @@ export class StoriesComponent {
   overflow: hidden;
 }
 
+.stories-viewer__progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 3;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.stories-viewer__progress-bar {
+  height: 100%;
+  background-color: $text-primary;
+  transition: width 50ms linear;
+}
+
 .stories-viewer__close {
   position: absolute;
-  top: $space-2;
-  right: $space-2;
-  z-index: 2;
-  width: 32px;
-  height: 32px;
+  top: $space-4;
+  right: $space-4;
+  z-index: 4;
+  width: 36px;
+  height: 36px;
   @include flex-center;
   color: $text-primary;
   border-radius: 50%;
@@ -336,16 +631,48 @@ export class StoriesComponent {
   }
 }
 
+.stories-viewer__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  @include flex-center;
+  color: $text-primary;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.stories-viewer__nav--prev {
+  left: $space-4;
+}
+
+.stories-viewer__nav--next {
+  right: $space-4;
+}
+
 .stories-viewer__header {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: $space-2;
-  padding: $space-4;
+  padding: $space-4 $space-4 $space-4 $space-4;
+  padding-top: $space-6;
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
 }
 
@@ -368,6 +695,23 @@ export class StoriesComponent {
   max-height: 85vh;
   object-fit: contain;
   display: block;
+}
+
+.stories-viewer__placeholder {
+  padding: $space-10;
+  text-align: center;
+  color: $text-secondary;
+
+  p {
+    margin: 0 0 $space-2;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+  }
+
+  span {
+    font-size: $font-size-sm;
+  }
 }
 ```
 

@@ -1,0 +1,45 @@
+<div class="search">
+  <header class="search__header">
+    <div class="search__input-wrap">
+      <lucide-icon [img]="SearchIcon" class="search__icon" [size]="20"></lucide-icon>
+      <input
+        type="search"
+        class="search__input"
+        placeholder="Search"
+        [value]="query()"
+        (input)="query.set($any($event.target).value)"
+        aria-label="Search users"
+      />
+    </div>
+  </header>
+
+  <section class="search__results">
+    @if (query().trim()) {
+      @if (filteredUsers().length > 0) {
+        <p class="search__results-label">Accounts</p>
+        <ul class="search__list">
+          @for (user of filteredUsers(); track user.id) {
+            <li class="search__item">
+              <img
+                [src]="user.avatarUrl"
+                [alt]="user.displayName"
+                class="search__avatar"
+                width="44"
+                height="44"
+              />
+              <div class="search__info">
+                <span class="search__username">{{ user.username }}</span>
+                <span class="search__name">{{ user.displayName }}</span>
+              </div>
+              <button type="button" class="search__follow">Follow</button>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="search__empty">No accounts found.</p>
+      }
+    } @else {
+      <p class="search__hint">Search for users by username or name.</p>
+    }
+  </section>
+</div>
