@@ -1,0 +1,180 @@
+@use '../../../styles/variables' as *;
+
+.notifications-sidebar {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.notifications-sidebar__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
+}
+
+.notifications-sidebar__panel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: min(400px, 100vw - 48px);
+  background: $bg-primary;
+  border-right: 1px solid $border-primary;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  animation: notifications-sidebar-in 0.2s ease;
+}
+
+@keyframes notifications-sidebar-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.notifications-sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-4 $space-4 $space-3;
+  flex-shrink: 0;
+}
+
+.notifications-sidebar__title {
+  margin: 0;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+}
+
+.notifications-sidebar__close {
+  background: none;
+  border: none;
+  color: $text-primary;
+  padding: $space-2;
+  cursor: pointer;
+  border-radius: 4px;
+
+  &:hover {
+    background: $bg-hover;
+  }
+}
+
+.notifications-sidebar__mark-all-wrap {
+  padding: 0 $space-4 $space-3;
+  flex-shrink: 0;
+}
+
+.notifications-sidebar__mark-all {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $accent;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: $space-2 $space-3;
+  border-radius: 8px;
+
+  &:hover {
+    color: $accent-hover;
+    background: $bg-hover;
+  }
+}
+
+.notifications-sidebar__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 $space-4 $space-4;
+}
+
+.notifications-sidebar__ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notifications-sidebar__item {
+  border-bottom: 1px solid $border-primary;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.notifications-sidebar__row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: $space-4;
+  padding: $space-4;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  min-width: 0;
+
+  &:hover {
+    background: $bg-hover;
+  }
+
+  &--unread {
+    background: $bg-tertiary;
+  }
+}
+
+.notifications-sidebar__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.notifications-sidebar__content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.notifications-sidebar__text {
+  font-size: $font-size-sm;
+  color: $text-primary;
+  line-height: 1.4;
+}
+
+.notifications-sidebar__username {
+  font-weight: $font-weight-semibold;
+  margin-right: 4px;
+}
+
+.notifications-sidebar__time {
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+.notifications-sidebar__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $accent;
+  flex-shrink: 0;
+}
+
+.notifications-sidebar__empty {
+  margin: 0;
+  padding: $space-10 $space-6;
+  font-size: $font-size-sm;
+  color: $text-muted;
+  text-align: center;
+}

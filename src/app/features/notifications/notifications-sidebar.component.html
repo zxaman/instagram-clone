@@ -1,0 +1,64 @@
+@if (isOpen) {
+  <div class="notifications-sidebar">
+    <div class="notifications-sidebar__backdrop" (click)="close()" aria-hidden="true"></div>
+    <aside class="notifications-sidebar__panel" role="dialog" aria-modal="true" aria-label="Notifications">
+      <header class="notifications-sidebar__header">
+        <h2 class="notifications-sidebar__title">Notifications</h2>
+        <button type="button" class="notifications-sidebar__close" aria-label="Close" (click)="close()">
+          <lucide-icon [img]="X" [size]="24"></lucide-icon>
+        </button>
+      </header>
+
+      @if (hasUnread()) {
+        <div class="notifications-sidebar__mark-all-wrap">
+          <button type="button" class="notifications-sidebar__mark-all" (click)="markAllAsRead()">
+            <lucide-icon [img]="CheckCheck" [size]="20"></lucide-icon>
+            Mark all as read
+          </button>
+        </div>
+      }
+
+      <section class="notifications-sidebar__body">
+        @if (notifications().length === 0) {
+          <p class="notifications-sidebar__empty">No notifications yet.</p>
+        } @else {
+          <ul class="notifications-sidebar__ul">
+            @for (n of notifications(); track n.id) {
+              @let actor = getUserById(n.actorId);
+              <li class="notifications-sidebar__item">
+                <button
+                  type="button"
+                  class="notifications-sidebar__row"
+                  [class.notifications-sidebar__row--unread]="!n.read"
+                  (click)="markAsRead(n.id)"
+                >
+                  @if (actor) {
+                    <img
+                      [src]="actor.avatarUrl"
+                      [alt]="actor.displayName"
+                      class="notifications-sidebar__avatar"
+                      width="44"
+                      height="44"
+                    />
+                    <div class="notifications-sidebar__content">
+                      <span class="notifications-sidebar__text">
+                        <span class="notifications-sidebar__username">{{ actor.username }}</span>
+                        {{ n.text }}
+                      </span>
+                      <time class="notifications-sidebar__time" [attr.datetime]="n.timestamp">
+                        {{ relativeTime(n.timestamp) }}
+                      </time>
+                    </div>
+                    @if (!n.read) {
+                      <span class="notifications-sidebar__dot" aria-hidden="true"></span>
+                    }
+                  }
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </aside>
+  </div>
+}

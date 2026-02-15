@@ -1,0 +1,134 @@
+@use '../../../styles/variables' as *;
+
+.notifications-page {
+  width: 100%;
+  max-width: $feed-max-width;
+  margin: 0 auto;
+  padding: $space-4;
+}
+
+.notifications-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $space-6;
+  flex-wrap: wrap;
+  gap: $space-2;
+}
+
+.notifications-page__title {
+  margin: 0;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+}
+
+.notifications-page__mark-all {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $accent;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: $space-2 $space-3;
+  border-radius: 8px;
+
+  &:hover {
+    color: $accent-hover;
+    background: $bg-hover;
+  }
+}
+
+.notifications-page__list {
+  background: $bg-primary;
+  border: 1px solid $border-primary;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.notifications-page__ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notifications-page__item {
+  border-bottom: 1px solid $border-primary;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.notifications-page__row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: $space-4;
+  padding: $space-4;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  min-width: 0;
+
+  &:hover {
+    background: $bg-hover;
+  }
+
+  &--unread {
+    background: $bg-tertiary;
+  }
+}
+
+.notifications-page__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.notifications-page__content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.notifications-page__text {
+  font-size: $font-size-sm;
+  color: $text-primary;
+  line-height: 1.4;
+}
+
+.notifications-page__username {
+  font-weight: $font-weight-semibold;
+  margin-right: 4px;
+}
+
+.notifications-page__time {
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+.notifications-page__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $accent;
+  flex-shrink: 0;
+}
+
+.notifications-page__empty {
+  margin: 0;
+  padding: $space-10 $space-6;
+  font-size: $font-size-sm;
+  color: $text-muted;
+  text-align: center;
+}

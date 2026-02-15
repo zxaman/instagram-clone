@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { SearchSidebarService } from '../../core/search-sidebar.service';
+import { NotificationsSidebarService } from '../../core/notifications-sidebar.service';
 import {
   Home,
   Clapperboard,
@@ -30,6 +31,7 @@ interface NavItem {
 export class LeftSidebarComponent {
   readonly Camera = Camera;
   private searchSidebar = inject(SearchSidebarService);
+  private notificationsSidebar = inject(NotificationsSidebarService);
 
   navItems: NavItem[] = [
     { label: 'Home', path: '/', icon: Home },
@@ -46,6 +48,9 @@ export class LeftSidebarComponent {
     if (item.path === '/search') {
       event.preventDefault();
       this.searchSidebar.open();
+    } else if (item.path === '/notifications') {
+      event.preventDefault();
+      this.notificationsSidebar.open();
     }
   }
 }
