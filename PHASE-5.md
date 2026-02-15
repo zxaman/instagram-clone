@@ -527,44 +527,162 @@ export class SearchSidebarComponent {
 
 ---
 
-### Updated in Phase 5: `src/app/layout/left-sidebar/left-sidebar.component.ts`
-
-Add import and method:
+### Updated in Phase 5: `src/app/layout/left-sidebar/left-sidebar.component.ts` (complete)
 
 ```ts
+import { Component, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 import { SearchSidebarService } from '../../core/search-sidebar.service';
+import {
+  Home,
+  Clapperboard,
+  MessageCircle,
+  Search,
+  Compass,
+  Heart,
+  SquarePlus,
+  User,
+  Camera,
+} from '../../core/icons';
 
-// In class:
-private searchSidebar = inject(SearchSidebarService);
+interface NavItem {
+  label: string;
+  path: string;
+  icon: typeof Home;
+}
 
-onNavClick(event: Event, item: NavItem): void {
-  if (item.path === '/search') {
-    event.preventDefault();
-    this.searchSidebar.open();
+@Component({
+  selector: 'app-left-sidebar',
+  standalone: true,
+  imports: [RouterLink, RouterLinkActive, LucideAngularModule],
+  templateUrl: './left-sidebar.component.html',
+  styleUrl: './left-sidebar.component.scss',
+})
+export class LeftSidebarComponent {
+  readonly Camera = Camera;
+  private searchSidebar = inject(SearchSidebarService);
+
+  navItems: NavItem[] = [
+    { label: 'Home', path: '/', icon: Home },
+    { label: 'Reels', path: '/reels', icon: Clapperboard },
+    { label: 'Messages', path: '/messages', icon: MessageCircle },
+    { label: 'Search', path: '/search', icon: Search },
+    { label: 'Explore', path: '/explore', icon: Compass },
+    { label: 'Notifications', path: '/notifications', icon: Heart },
+    { label: 'Create', path: '/create', icon: SquarePlus },
+    { label: 'Profile', path: '/profile', icon: User },
+  ];
+
+  onNavClick(event: Event, item: NavItem): void {
+    if (item.path === '/search') {
+      event.preventDefault();
+      this.searchSidebar.open();
+    }
   }
 }
 ```
 
-Template: add `(click)="onNavClick($event, item)"` to the nav link.
-
 ---
 
-### Updated in Phase 5: `src/app/layout/main-layout/main-layout.component.ts` and `.html`
+### Updated in Phase 5: `src/app/layout/left-sidebar/left-sidebar.component.html` (complete)
 
-- **TS:** Import `SearchSidebarComponent` from `../../features/search/search-sidebar.component`, add to `imports` array.
-- **HTML:** Add `<app-search-sidebar />` after the right aside (so it overlays when open).
-
----
-
-### Updated in Phase 5: `src/app/app.routes.ts`
-
-Change search route from component to redirect:
-
-```ts
-{ path: 'search', redirectTo: '', pathMatch: 'full' },
+```html
+<div class="sidebar">
+  <a routerLink="/" class="sidebar__logo" aria-label="Instagram home">
+    <lucide-icon [img]="Camera" class="sidebar__logo-icon" [size]="24" aria-hidden="true"></lucide-icon>
+    <span class="sidebar__logo-text">Instagram</span>
+  </a>
+  <nav class="sidebar__nav">
+    @for (item of navItems; track item.path) {
+      <a
+        [routerLink]="item.path"
+        routerLinkActive="sidebar__link--active"
+        [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+        class="sidebar__link"
+        (click)="onNavClick($event, item)"
+      >
+        <lucide-icon [img]="item.icon" class="sidebar__icon" [size]="24"></lucide-icon>
+        <span class="sidebar__label">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+</div>
 ```
 
-Remove `SearchComponent` import if present.
+---
+
+### Updated in Phase 5: `src/app/layout/main-layout/main-layout.component.ts` (complete)
+
+```ts
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { LeftSidebarComponent } from '../left-sidebar/left-sidebar.component';
+import { RightSidebarComponent } from '../right-sidebar/right-sidebar.component';
+import { SearchSidebarComponent } from '../../features/search/search-sidebar.component';
+
+@Component({
+  selector: 'app-main-layout',
+  standalone: true,
+  imports: [
+    LeftSidebarComponent,
+    RightSidebarComponent,
+    RouterOutlet,
+    SearchSidebarComponent,
+  ],
+  templateUrl: './main-layout.component.html',
+  styleUrl: './main-layout.component.scss',
+})
+export class MainLayoutComponent {}
+```
+
+---
+
+### Updated in Phase 5: `src/app/layout/main-layout/main-layout.component.html` (complete)
+
+```html
+<div class="layout">
+  <aside class="layout__left">
+    <app-left-sidebar />
+  </aside>
+  <main class="layout__center">
+    <router-outlet />
+  </main>
+  <aside class="layout__right">
+    <app-right-sidebar />
+  </aside>
+  <app-search-sidebar />
+</div>
+```
+
+---
+
+### Updated in Phase 5: `src/app/app.routes.ts` (complete)
+
+```ts
+import { Routes } from '@angular/router';
+import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
+import { HomeComponent } from './features/home/home.component';
+import { PlaceholderComponent } from './features/placeholder/placeholder.component';
+
+export const routes: Routes = [
+  {
+    path: '',
+    component: MainLayoutComponent,
+    children: [
+      { path: '', component: HomeComponent },
+      { path: 'search', redirectTo: '', pathMatch: 'full' },
+      { path: 'explore', component: PlaceholderComponent, data: { pageName: 'Explore' } },
+      { path: 'reels', component: PlaceholderComponent, data: { pageName: 'Reels' } },
+      { path: 'messages', component: PlaceholderComponent, data: { pageName: 'Messages' } },
+      { path: 'notifications', component: PlaceholderComponent, data: { pageName: 'Notifications' } },
+      { path: 'create', component: PlaceholderComponent, data: { pageName: 'Create' } },
+      { path: 'profile', component: PlaceholderComponent, data: { pageName: 'Profile' } },
+    ],
+  },
+  { path: '**', redirectTo: '' },
+];
+```
 
 ---
 

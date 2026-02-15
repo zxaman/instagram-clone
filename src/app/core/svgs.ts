@@ -1,16 +1,21 @@
 /**
- * Central registry for custom SVG markup used in the app.
+ * Central registry for all SVGs used in the app.
  *
- * - **Icons:** Use Lucide via `src/app/core/icons.ts` (lucide-angular). Do not add icon SVGs here.
- * - **Custom SVGs:** If a feature needs an SVG that is not in Lucide (e.g. custom logo, illustration),
- *   add it here as an exported constant (e.g. SVG string or Angular component) and import it where needed.
- *   This keeps SVG assets in one place and avoids inline SVG in templates.
+ * - **Icon SVGs:** All icon SVGs are provided by Lucide and registered in `src/app/core/icons.ts`.
+ *   Use Lucide via that file (lucide-angular). Do not duplicate icon SVG markup here.
  *
- * Example (when needed):
+ * - **Custom SVGs:** Any SVG that is not in Lucide (e.g. custom logo, illustration, badge) must be
+ *   added here as an exported constant (SVG string or component) and imported where needed. This
+ *   keeps all SVG assets in one place and avoids inline SVG in templates.
+ *
+ * Summary:
+ *   - Icons in use → see core/icons.ts (ICONS_IN_USE).
+ *   - Custom SVG markup → add below and list in SVGS_IN_USE.
+ *
+ * Example when adding a custom SVG:
  *   export const MY_CUSTOM_SVG = `<svg>...</svg>`;
- *   // Or export a component that wraps the SVG.
- *
- * Currently unused: the app uses only Lucide icons from core/icons.ts.
+ *   // Then add 'MY_CUSTOM_SVG' to SVGS_IN_USE.
  */
 
+/** Names of custom SVG constants defined in this file (for tracking). Icon SVGs are in core/icons.ts. */
 export const SVGS_IN_USE: readonly string[] = [] as const;
