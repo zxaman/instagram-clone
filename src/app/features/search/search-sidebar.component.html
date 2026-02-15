@@ -1,0 +1,83 @@
+@if (isOpen) {
+  <div class="search-sidebar">
+    <div class="search-sidebar__backdrop" (click)="close()" aria-hidden="true"></div>
+    <aside class="search-sidebar__panel" role="dialog" aria-modal="true" aria-label="Search">
+      <header class="search-sidebar__header">
+        <h2 class="search-sidebar__title">Search</h2>
+        <button type="button" class="search-sidebar__close" aria-label="Close" (click)="close()">
+          <lucide-icon [img]="X" [size]="24"></lucide-icon>
+        </button>
+      </header>
+
+      <div class="search-sidebar__input-wrap">
+        <lucide-icon [img]="SearchIcon" class="search-sidebar__input-icon" [size]="20"></lucide-icon>
+        <input
+          type="search"
+          class="search-sidebar__input"
+          placeholder="Search"
+          [value]="query()"
+          (input)="query.set($any($event.target).value)"
+          aria-label="Search users"
+        />
+        @if (query()) {
+          <button type="button" class="search-sidebar__clear" aria-label="Clear" (click)="clearQuery()">
+            <lucide-icon [img]="X" [size]="16"></lucide-icon>
+          </button>
+        }
+      </div>
+
+      <section class="search-sidebar__body">
+        @if (query().trim()) {
+          @if (filteredUsers().length > 0) {
+            <p class="search-sidebar__label">Accounts</p>
+            <ul class="search-sidebar__list">
+              @for (user of filteredUsers(); track user.id) {
+                <li class="search-sidebar__item">
+                  <button type="button" class="search-sidebar__item-btn" (click)="addRecent(user.id)">
+                    <img [src]="user.avatarUrl" [alt]="user.displayName" class="search-sidebar__avatar" width="44" height="44" />
+                    <div class="search-sidebar__info">
+                      <span class="search-sidebar__username">{{ user.username }}</span>
+                      <span class="search-sidebar__name">{{ user.displayName }}</span>
+                    </div>
+                  </button>
+                  <button type="button" class="search-sidebar__follow">Follow</button>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="search-sidebar__empty">No accounts found.</p>
+          }
+        } @else {
+          <div class="search-sidebar__recent">
+            <div class="search-sidebar__recent-header">
+              <span class="search-sidebar__label">Recent</span>
+              @if (recentUsers().length > 0) {
+                <button type="button" class="search-sidebar__clear-all" (click)="clearRecent()">Clear all</button>
+              }
+            </div>
+            @if (recentUsers().length > 0) {
+              <ul class="search-sidebar__list">
+                @for (user of recentUsers(); track user.id) {
+                  <li class="search-sidebar__item">
+                    <button type="button" class="search-sidebar__item-btn">
+                      <img [src]="user.avatarUrl" [alt]="user.displayName" class="search-sidebar__avatar" width="44" height="44" />
+                      <div class="search-sidebar__info">
+                        <span class="search-sidebar__username">{{ user.username }}</span>
+                        <span class="search-sidebar__name">{{ user.displayName }}</span>
+                      </div>
+                    </button>
+                    <button type="button" class="search-sidebar__remove" aria-label="Remove from recent" (click)="removeRecent(user.id, $event)">
+                      <lucide-icon [img]="X" [size]="16"></lucide-icon>
+                    </button>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="search-sidebar__hint">Search for users by username or name.</p>
+            }
+          </div>
+        }
+      </section>
+    </aside>
+  </div>
+}

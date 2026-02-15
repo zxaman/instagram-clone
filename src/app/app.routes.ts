@@ -9,7 +9,7 @@ export const routes: Routes = [
     component: MainLayoutComponent,
     children: [
       { path: '', component: HomeComponent },
-      { path: 'search', component: PlaceholderComponent, data: { pageName: 'Search' } },
+      { path: 'search', redirectTo: '', pathMatch: 'full' },
       { path: 'explore', component: PlaceholderComponent, data: { pageName: 'Explore' } },
       { path: 'reels', component: PlaceholderComponent, data: { pageName: 'Reels' } },
       { path: 'messages', component: PlaceholderComponent, data: { pageName: 'Messages' } },

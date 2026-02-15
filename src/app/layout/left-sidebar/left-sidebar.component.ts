@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
+import { SearchSidebarService } from '../../core/search-sidebar.service';
 import {
   Home,
   Clapperboard,
@@ -28,6 +29,7 @@ interface NavItem {
 })
 export class LeftSidebarComponent {
   readonly Camera = Camera;
+  private searchSidebar = inject(SearchSidebarService);
 
   navItems: NavItem[] = [
     { label: 'Home', path: '/', icon: Home },
@@ -39,4 +41,11 @@ export class LeftSidebarComponent {
     { label: 'Create', path: '/create', icon: SquarePlus },
     { label: 'Profile', path: '/profile', icon: User },
   ];
+
+  onNavClick(event: Event, item: NavItem): void {
+    if (item.path === '/search') {
+      event.preventDefault();
+      this.searchSidebar.open();
+    }
+  }
 }

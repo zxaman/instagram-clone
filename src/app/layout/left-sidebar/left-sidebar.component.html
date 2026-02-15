@@ -10,6 +10,7 @@
         routerLinkActive="sidebar__link--active"
         [routerLinkActiveOptions]="{ exact: item.path === '/' }"
         class="sidebar__link"
+        (click)="onNavClick($event, item)"
       >
         <lucide-icon [img]="item.icon" class="sidebar__icon" [size]="24"></lucide-icon>
         <span class="sidebar__label">{{ item.label }}</span>
