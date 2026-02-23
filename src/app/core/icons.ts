@@ -30,6 +30,14 @@ export {
   ChevronRight,
   X,
   CheckCheck,
+  // Messages
+  PenSquare,
+  Info,
+  Phone,
+  Video,
+  Image,
+  Smile,
+  ChevronDown,
 } from 'lucide-angular';
 
 /** List of icon names in use – for documentation and tracking. */
@@ -51,4 +59,11 @@ export const ICONS_IN_USE = [
   'ChevronRight',
   'X',
   'CheckCheck',
+  'PenSquare',
+  'Info',
+  'Phone',
+  'Video',
+  'Image',
+  'Smile',
+  'ChevronDown',
 ] as const;

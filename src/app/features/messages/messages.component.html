@@ -1,0 +1,205 @@
+<div class="messages">
+  <!-- Left: Conversation List -->
+  <aside class="messages__inbox">
+    <!-- Header: username + new message -->
+    <header class="messages__inbox-header">
+      <button type="button" class="messages__inbox-user" aria-label="Switch account">
+        <span class="messages__inbox-username">{{ currentUser.username }}</span>
+        <lucide-icon [img]="ChevronDown" [size]="16"></lucide-icon>
+      </button>
+      <button type="button" class="messages__new-btn" aria-label="New message">
+        <lucide-icon [img]="PenSquare" [size]="24"></lucide-icon>
+      </button>
+    </header>
+
+    <!-- Search -->
+    <div class="messages__search">
+      <div class="messages__search-wrap">
+        <lucide-icon [img]="Search" [size]="16" class="messages__search-icon"></lucide-icon>
+        <input
+          type="text"
+          class="messages__search-input"
+          placeholder="Search"
+          [value]="searchQuery()"
+          (input)="onSearchInput($event)"
+        />
+      </div>
+    </div>
+
+    <!-- Notes strip -->
+    <div class="messages__notes">
+      <div class="messages__notes-scroll">
+        @for (note of notes; track note.id) {
+          @let noteUser = getNoteUser(note);
+          @if (noteUser) {
+            <div class="messages__note-item">
+              <div class="messages__note-bubble">
+                <span class="messages__note-text">{{ note.text }}</span>
+              </div>
+              <img
+                [src]="noteUser.avatarUrl"
+                [alt]="noteUser.displayName"
+                class="messages__note-avatar"
+                width="64"
+                height="64"
+              />
+              <span class="messages__note-name">
+                {{ isCurrentUserNote(note) ? 'Your note' : noteUser.username }}
+              </span>
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Messages / Requests tabs -->
+    <div class="messages__tabs">
+      <button type="button" class="messages__tab messages__tab--active">Messages</button>
+      <button type="button" class="messages__tab">Requests</button>
+    </div>
+
+    <!-- Conversation list -->
+    <ul class="messages__conv-list">
+      @for (conv of filteredConversations(); track conv.id) {
+        @let partner = getPartner(conv);
+        @if (partner) {
+          <li class="messages__conv-item">
+            <button
+              type="button"
+              class="messages__conv-row"
+              [class.messages__conv-row--active]="conv.id === selectedConversationId()"
+              (click)="selectConversation(conv.id)"
+            >
+              <img
+                [src]="partner.avatarUrl"
+                [alt]="partner.displayName"
+                class="messages__conv-avatar"
+                width="56"
+                height="56"
+              />
+              <div class="messages__conv-info">
+                <span class="messages__conv-name">{{ partner.displayName }}</span>
+                <span
+                  class="messages__conv-preview"
+                  [class.messages__conv-preview--unread]="conv.unreadCount > 0"
+                >
+                  {{ getPreviewText(conv) }} · {{ relativeTime(conv.lastMessageTime) }}
+                </span>
+              </div>
+              @if (conv.unreadCount > 0) {
+                <span class="messages__conv-dot"></span>
+              }
+            </button>
+          </li>
+        }
+      }
+    </ul>
+  </aside>
+
+  <!-- Right: Chat View -->
+  <section class="messages__chat">
+    @if (selectedConversation(); as conv) {
+      @let partner = chatPartner();
+
+      <!-- Chat Header -->
+      <header class="messages__chat-header">
+        @if (partner) {
+          <div class="messages__chat-user">
+            <img
+              [src]="partner.avatarUrl"
+              [alt]="partner.displayName"
+              class="messages__chat-avatar"
+              width="44"
+              height="44"
+            />
+            <div class="messages__chat-user-info">
+              <span class="messages__chat-username">{{ partner.displayName }}</span>
+              <span class="messages__chat-status">Active now</span>
+            </div>
+          </div>
+          <div class="messages__chat-actions">
+            <button type="button" class="messages__chat-action" aria-label="Voice call">
+              <lucide-icon [img]="Phone" [size]="24"></lucide-icon>
+            </button>
+            <button type="button" class="messages__chat-action" aria-label="Video call">
+              <lucide-icon [img]="Video" [size]="24"></lucide-icon>
+            </button>
+            <button type="button" class="messages__chat-action" aria-label="Conversation info">
+              <lucide-icon [img]="Info" [size]="24"></lucide-icon>
+            </button>
+          </div>
+        }
+      </header>
+
+      <!-- Chat Messages -->
+      <div class="messages__chat-body">
+        @if (partner) {
+          <div class="messages__chat-intro">
+            <img
+              [src]="partner.avatarUrl"
+              [alt]="partner.displayName"
+              class="messages__chat-intro-avatar"
+              width="96"
+              height="96"
+            />
+            <span class="messages__chat-intro-name">{{ partner.displayName }}</span>
+            <span class="messages__chat-intro-handle">{{ partner.username }}</span>
+          </div>
+        }
+
+        @for (msg of chatMessages(); track msg.id) {
+          <div
+            class="messages__bubble-wrap"
+            [class.messages__bubble-wrap--own]="isOwnMessage(msg)"
+          >
+            <div
+              class="messages__bubble"
+              [class.messages__bubble--own]="isOwnMessage(msg)"
+            >
+              {{ msg.text }}
+            </div>
+            <time class="messages__bubble-time" [attr.datetime]="msg.timestamp">
+              {{ formatMessageTime(msg.timestamp) }}
+            </time>
+          </div>
+        }
+      </div>
+
+      <!-- Chat Input -->
+      <footer class="messages__chat-footer">
+        <div class="messages__input-wrap">
+          <button type="button" class="messages__input-action" aria-label="Emoji">
+            <lucide-icon [img]="Smile" [size]="24"></lucide-icon>
+          </button>
+          <input
+            type="text"
+            class="messages__input"
+            placeholder="Message..."
+            [value]="messageText()"
+            (input)="onInputChange($event)"
+            (keydown)="onKeydown($event)"
+          />
+          @if (messageText().trim()) {
+            <button type="button" class="messages__send-btn" (click)="sendMessage()">
+              Send
+            </button>
+          } @else {
+            <button type="button" class="messages__input-action" aria-label="Send photo">
+              <lucide-icon [img]="ImageIcon" [size]="24"></lucide-icon>
+            </button>
+          }
+        </div>
+      </footer>
+    } @else {
+      <!-- Empty state matching Instagram -->
+      <div class="messages__empty">
+        <div class="messages__empty-icon">
+          <lucide-icon [img]="Send" [size]="44"></lucide-icon>
+        </div>
+        <h3 class="messages__empty-title">Your messages</h3>
+        <p class="messages__empty-text">Send a message to start a chat.</p>
+        <button type="button" class="messages__empty-btn">Send message</button>
+      </div>
+    }
+  </section>
+</div>

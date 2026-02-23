@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { HomeComponent } from './features/home/home.component';
 import { PlaceholderComponent } from './features/placeholder/placeholder.component';
+import { MessagesComponent } from './features/messages/messages.component';
 export const routes: Routes = [
   {
     path: '',
@@ -12,7 +13,7 @@ export const routes: Routes = [
       { path: 'notifications', redirectTo: '', pathMatch: 'full' },
       { path: 'explore', component: PlaceholderComponent, data: { pageName: 'Explore' } },
       { path: 'reels', component: PlaceholderComponent, data: { pageName: 'Reels' } },
-      { path: 'messages', component: PlaceholderComponent, data: { pageName: 'Messages' } },
+      { path: 'messages', component: MessagesComponent },
       { path: 'create', component: PlaceholderComponent, data: { pageName: 'Create' } },
       { path: 'profile', component: PlaceholderComponent, data: { pageName: 'Profile' } },
     ],
