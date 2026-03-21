@@ -33,6 +33,9 @@ Build a full-featured **Direct Messages** page that faithfully replicates the In
 | 7 | `src/app/features/messages/messages.component.html` | **Create** |
 | 8 | `src/app/features/messages/messages.component.scss` | **Create** |
 | 9 | `src/app/app.routes.ts` | **Modify** – `/messages` route |
+| 10 | `src/app/layout/main-layout/main-layout.component.ts` | **Modify** – detect `/messages` route via signal |
+| 11 | `src/app/layout/main-layout/main-layout.component.html` | **Modify** – hide right sidebar on `/messages` |
+| 12 | `src/app/layout/main-layout/main-layout.component.scss` | **Modify** – full-width center content on `/messages` |
 
 ---
 
@@ -1367,6 +1370,162 @@ export const routes: Routes = [
 ];
 ```
 
+### 10. Layout override for Messages page — `src/app/layout/main-layout/*`
+
+To match Instagram DM layout, the global right sidebar (which contains "Suggested for you") must not render on `/messages`.
+
+`main-layout.component.ts`
+
+```ts
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { filter, map, startWith } from 'rxjs';
+import { LeftSidebarComponent } from '../left-sidebar/left-sidebar.component';
+import { RightSidebarComponent } from '../right-sidebar/right-sidebar.component';
+import { SearchSidebarComponent } from '../../features/search/search-sidebar.component';
+import { NotificationsSidebarComponent } from '../../features/notifications/notifications-sidebar.component';
+
+@Component({
+  selector: 'app-main-layout',
+  standalone: true,
+  imports: [
+    LeftSidebarComponent,
+    RightSidebarComponent,
+    RouterOutlet,
+    SearchSidebarComponent,
+    NotificationsSidebarComponent,
+  ],
+  templateUrl: './main-layout.component.html',
+  styleUrl: './main-layout.component.scss',
+})
+export class MainLayoutComponent {
+  private readonly router = inject(Router);
+
+  readonly isMessagesRoute = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => event.urlAfterRedirects),
+      startWith(this.router.url),
+      map((url) => url === '/messages')
+    ),
+    { initialValue: this.router.url === '/messages' }
+  );
+}
+```
+
+`main-layout.component.html`
+
+```html
+<div class="layout">
+  <aside class="layout__left">
+    <app-left-sidebar />
+  </aside>
+<main class="layout__center" [class.layout__center--full-width]="isMessagesRoute()">
+  <router-outlet />
+</main>
+
+@if (!isMessagesRoute()) {
+  <aside class="layout__right">
+    <app-right-sidebar />
+  </aside>
+}
+  <app-search-sidebar />
+  <app-notifications-sidebar />
+</div>
+```
+
+`main-layout.component.scss`
+
+```scss
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+  max-width: 100%;
+
+  &__left {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: $sidebar-width-collapsed;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid $border-primary;
+    background-color: $bg-primary;
+    padding: $space-4 $space-2;
+    z-index: 10;
+    transition: width 0.2s ease;
+
+    &:hover {
+      width: $sidebar-width;
+    }
+  }
+
+  &__center {
+    flex: 1;
+    min-width: 0;
+    margin-left: $sidebar-width-collapsed;
+    margin-right: $right-sidebar-width;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: $bg-primary;
+
+    &--full-width {
+      margin-right: 0;
+      align-items: stretch;
+    }
+  }
+
+  &__right {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: $right-sidebar-width;
+    background-color: $bg-primary;
+    padding: $space-6 $space-4;
+    z-index: 10;
+    overflow-y: auto;
+  }
+}
+
+// Responsive: hide right sidebar on smaller screens
+@media (max-width: 1260px) {
+  .layout {
+    &__right {
+      display: none;
+    }
+
+    &__center {
+      margin-right: 0;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .layout {
+    &__left {
+      width: $sidebar-width-collapsed;
+      padding: $space-4 $space-2;
+
+      &:hover {
+        width: $sidebar-width-collapsed;
+      }
+    }
+
+    &__center {
+      margin-left: $sidebar-width-collapsed;
+    }
+  }
+}
+```
+
 ---
 
 ## Instagram UI features replicated
@@ -1381,6 +1540,7 @@ export const routes: Routes = [
 | "You: " preview prefix | `getPreviewText()` checks `lastMessageSenderId` |
 | Blue unread dot | 8px accent circle instead of number badge |
 | Empty state | Circled Send icon + "Your messages" + blue "Send message" button |
+| No "Suggested for you" on Messages | Right sidebar is conditionally hidden when route is `/messages` |
 | Chat header | Avatar, display name, "Active now", phone/video/info actions |
 | Chat bubbles | Rounded, accent-colored for own messages, elevated bg for others |
 | Message input | Pill-shaped, emoji/image icons, send button appears on input |
@@ -1401,3 +1561,4 @@ Navigate to `/messages` and confirm:
 4. Clicking a conversation opens the chat
 5. Sending a message updates both the chat and last-message preview
 6. Blue dot disappears when a conversation is opened
+7. Right sidebar / "Suggested for you" is hidden on `/messages`

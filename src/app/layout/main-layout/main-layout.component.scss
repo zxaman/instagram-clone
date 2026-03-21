@@ -35,6 +35,11 @@
     flex-direction: column;
     align-items: center;
     background-color: $bg-primary;
+
+    &--full-width {
+      margin-right: 0;
+      align-items: stretch;
+    }
   }
 
   &__right {

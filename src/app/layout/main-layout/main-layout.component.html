@@ -2,12 +2,14 @@
   <aside class="layout__left">
     <app-left-sidebar />
   </aside>
-  <main class="layout__center">
+  <main class="layout__center" [class.layout__center--full-width]="isMessagesRoute()">
     <router-outlet />
   </main>
-  <aside class="layout__right">
-    <app-right-sidebar />
-  </aside>
+  @if (!isMessagesRoute()) {
+    <aside class="layout__right">
+      <app-right-sidebar />
+    </aside>
+  }
   <app-search-sidebar />
   <app-notifications-sidebar />
 </div>
