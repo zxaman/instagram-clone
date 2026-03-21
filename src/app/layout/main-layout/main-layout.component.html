@@ -2,10 +2,10 @@
   <aside class="layout__left">
     <app-left-sidebar />
   </aside>
-  <main class="layout__center" [class.layout__center--full-width]="isMessagesRoute()">
+  <main class="layout__center" [class.layout__center--full-width]="isImmersiveRoute()">
     <router-outlet />
   </main>
-  @if (!isMessagesRoute()) {
+  @if (!isImmersiveRoute()) {
     <aside class="layout__right">
       <app-right-sidebar />
     </aside>

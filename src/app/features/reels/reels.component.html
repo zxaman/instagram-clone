@@ -1,0 +1,107 @@
+<section class="reels">
+  <header class="reels__header">
+    <div class="reels__tabs" role="tablist" aria-label="Reels feed type">
+      <button
+        type="button"
+        class="reels__tab"
+        [class.reels__tab--active]="activeTab() === 'for-you'"
+        (click)="setTab('for-you')"
+      >
+        For you
+      </button>
+      <button
+        type="button"
+        class="reels__tab"
+        [class.reels__tab--active]="activeTab() === 'following'"
+        (click)="setTab('following')"
+      >
+        Following
+      </button>
+    </div>
+  </header>
+
+  <div class="reels__list" #reelsList (scroll)="onListScroll()" (wheel)="onWheel($event)">
+    @for (reel of reelsWithUsers(); track reel.id) {
+      @if (reel.user; as user) {
+        <div class="reels__snap">
+          <article class="reel-card" aria-label="Reel by {{ user.username }}">
+            <img
+              [src]="reel.mediaUrl"
+              [alt]="'Reel by ' + user.displayName"
+              class="reel-card__media"
+              width="540"
+              height="960"
+            />
+
+            <div class="reel-card__gradient"></div>
+
+            <button type="button" class="reel-card__more" aria-label="More options">
+              <lucide-icon [img]="MoreHorizontal" [size]="20"></lucide-icon>
+            </button>
+
+            <div class="reel-card__meta">
+              <div class="reel-card__author-row">
+                <img
+                  [src]="user.avatarUrl"
+                  [alt]="user.displayName"
+                  class="reel-card__avatar"
+                  width="32"
+                  height="32"
+                />
+                <span class="reel-card__username">{{ user.username }}</span>
+                <button type="button" class="reel-card__follow-btn">Follow</button>
+              </div>
+
+              <p class="reel-card__caption">{{ reel.caption }}</p>
+              <p class="reel-card__audio">{{ reel.audioTitle }} • {{ relativeTime(reel.timestamp) }}</p>
+            </div>
+
+            <div class="reel-card__actions">
+              <button
+                type="button"
+                class="reel-card__action"
+                [class.reel-card__action--liked]="reel.isLiked"
+                (click)="toggleLike(reel.id)"
+                aria-label="Like reel"
+              >
+                <lucide-icon [img]="Heart" [size]="28"></lucide-icon>
+                <span class="reel-card__action-count">{{ reel.likesCount }}</span>
+              </button>
+
+              <button type="button" class="reel-card__action" aria-label="Comment">
+                <lucide-icon [img]="MessageCircle" [size]="28"></lucide-icon>
+                <span class="reel-card__action-count">{{ reel.commentsCount }}</span>
+              </button>
+
+              <button type="button" class="reel-card__action" aria-label="Share">
+                <lucide-icon [img]="Send" [size]="28"></lucide-icon>
+              </button>
+            </div>
+          </article>
+        </div>
+      }
+    }
+  </div>
+
+  <div class="reels__controls" aria-hidden="false">
+    <button
+      type="button"
+      class="reels__control"
+      (click)="prevReel()"
+      [disabled]="activeIndex() === 0"
+      aria-label="Previous reel"
+    >
+      <lucide-icon [img]="ChevronUp" [size]="22"></lucide-icon>
+    </button>
+
+    <button
+      type="button"
+      class="reels__control"
+      (click)="nextReel()"
+      [disabled]="activeIndex() >= reelsWithUsers().length - 1"
+      aria-label="Next reel"
+    >
+      <lucide-icon [img]="ChevronDown" [size]="22"></lucide-icon>
+    </button>
+  </div>
+</section>

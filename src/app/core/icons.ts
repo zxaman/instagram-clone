@@ -37,6 +37,7 @@ export {
   Video,
   Image,
   Smile,
+  ChevronUp,
   ChevronDown,
 } from 'lucide-angular';
 
@@ -65,5 +66,6 @@ export const ICONS_IN_USE = [
   'Video',
   'Image',
   'Smile',
+  'ChevronUp',
   'ChevronDown',
 ] as const;

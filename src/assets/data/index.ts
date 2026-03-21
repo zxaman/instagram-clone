@@ -11,3 +11,4 @@ export { notifications, type Notification, type NotificationType } from './notif
 export { conversations, type Conversation } from './conversations';
 export { messages, type Message } from './messages';
 export { notes, type Note } from './notes';
+export { reels, type Reel } from './reels';
