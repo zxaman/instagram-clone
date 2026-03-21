@@ -1,0 +1,254 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.reels {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  padding: $space-4 $space-6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-4;
+  background: $bg-primary;
+  overflow: hidden;
+}
+
+.reels__header {
+  width: 100%;
+  max-width: 460px;
+  @include flex-center;
+}
+
+.reels__tabs {
+  display: inline-flex;
+  border: 1px solid $border-primary;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.reels__tab {
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+
+  &--active {
+    background: $bg-elevated;
+    color: $text-primary;
+  }
+}
+
+.reels__list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  @include hide-scrollbar;
+}
+
+.reels__controls {
+  position: fixed;
+  right: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+}
+
+.reels__control {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(32, 36, 44, 0.9);
+  color: #fff;
+  cursor: pointer;
+  @include flex-center;
+  transition: background 0.15s ease, opacity 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(57, 66, 79, 0.95);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.reels__snap {
+  width: 100%;
+  min-height: calc(100vh - 116px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.reel-card {
+  width: 100%;
+  max-width: 420px;
+  height: min(80vh, 760px);
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid $border-primary;
+  background: $bg-secondary;
+  isolation: isolate;
+}
+
+.reel-card__media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.reel-card__gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.35) 35%,
+    rgba(0, 0, 0, 0.05) 70%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  pointer-events: none;
+}
+
+.reel-card__more {
+  position: absolute;
+  top: $space-3;
+  right: $space-3;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  cursor: pointer;
+  @include flex-center;
+}
+
+.reel-card__meta {
+  position: absolute;
+  left: $space-3;
+  right: 68px;
+  bottom: $space-3;
+  color: #fff;
+  z-index: 2;
+}
+
+.reel-card__author-row {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  margin-bottom: $space-2;
+}
+
+.reel-card__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.reel-card__username {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+.reel-card__follow-btn {
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: transparent;
+  color: #fff;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.reel-card__caption {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: 1.35;
+}
+
+.reel-card__audio {
+  margin: $space-1 0 0;
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.reel-card__actions {
+  position: absolute;
+  right: $space-3;
+  bottom: $space-3;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-3;
+}
+
+.reel-card__action {
+  border: none;
+  background: transparent;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+
+  &--liked {
+    color: $error;
+  }
+}
+
+.reel-card__action-count {
+  font-size: 11px;
+  font-weight: $font-weight-semibold;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .reels {
+    padding: $space-3 $space-2;
+    gap: $space-2;
+  }
+
+  .reels__snap {
+    min-height: calc(100vh - 92px);
+  }
+
+  .reel-card {
+    width: min(100%, 420px);
+    height: min(82vh, 700px);
+    border-radius: 12px;
+  }
+
+  .reels__controls {
+    right: 10px;
+    gap: $space-2;
+  }
+
+  .reels__control {
+    width: 44px;
+    height: 44px;
+  }
+}

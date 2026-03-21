@@ -23,13 +23,20 @@ import { NotificationsSidebarComponent } from '../../features/notifications/noti
 export class MainLayoutComponent {
   private readonly router = inject(Router);
 
-  readonly isMessagesRoute = toSignal(
+  readonly isImmersiveRoute = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
       map((event) => event.urlAfterRedirects),
       startWith(this.router.url),
-      map((url) => url === '/messages')
+      map((url) => {
+        const [path] = url.split('?');
+        return path === '/messages' || path === '/reels';
+      })
     ),
-    { initialValue: this.router.url === '/messages' }
+    {
+      initialValue:
+        this.router.url.split('?')[0] === '/messages' ||
+        this.router.url.split('?')[0] === '/reels',
+    }
   );
 }
