@@ -1,5 +1,7 @@
 # Phase 1 – Foundation (What We Did & Why)
 
+> Sync note (2026-03-21): Phase 1 code blocks were re-checked and kept as the intended Phase 1 baseline. Shared files that evolve later (like routing/layout) are updated in later phase docs.
+
 This document explains **everything we did in Phase 1** in simple terms so you can make clear videos from it. Each section can become a video or a part of a video.
 
 ---

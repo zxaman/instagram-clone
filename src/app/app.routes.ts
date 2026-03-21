@@ -4,6 +4,7 @@ import { HomeComponent } from './features/home/home.component';
 import { PlaceholderComponent } from './features/placeholder/placeholder.component';
 import { MessagesComponent } from './features/messages/messages.component';
 import { ReelsComponent } from './features/reels/reels.component';
+import { ProfileComponent } from './features/profile/profile.component';
 export const routes: Routes = [
   {
     path: '',
@@ -16,7 +17,7 @@ export const routes: Routes = [
       { path: 'reels', component: ReelsComponent },
       { path: 'messages', component: MessagesComponent },
       { path: 'create', component: PlaceholderComponent, data: { pageName: 'Create' } },
-      { path: 'profile', component: PlaceholderComponent, data: { pageName: 'Profile' } },
+      { path: 'profile', component: ProfileComponent },
     ],
   },
   { path: '**', redirectTo: '' },

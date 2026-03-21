@@ -686,14 +686,80 @@ Renders tabs and reel cards with overlay metadata/actions.
 
 ### 6. Icons update — `src/app/core/icons.ts`
 
-Added `ChevronUp` so we can render previous/next navigation controls in Reels.
+Added `ChevronUp` for reel navigation controls. Full current file:
 
 ```ts
+/**
+ * Central registry of Lucide icons used in the app.
+ * Import icons from this file in components so we can track usage in one place.
+ *
+ * Usage in component:
+ *   import { LucideAngularModule } from 'lucide-angular';
+ *   import { Heart, MessageCircle } from './core/icons';
+ *   // Expose on class: readonly Heart = Heart;
+ *   // Template: <lucide-icon [img]="Heart" [size]="24"></lucide-icon>
+ */
+
 export {
-  // ...existing icons
+  // Post / feed
+  Heart,
+  MessageCircle,
+  Send,
+  Bookmark,
+  MoreHorizontal,
+  BadgeCheck,
+  // Left sidebar (nav + logo)
+  Camera,
+  Home,
+  Clapperboard,
+  Search,
+  Compass,
+  SquarePlus,
+  User,
+  // Stories (strip + viewer)
+  ChevronLeft,
+  ChevronRight,
+  X,
+  CheckCheck,
+  // Messages
+  PenSquare,
+  Info,
+  Phone,
+  Video,
+  Image,
+  Smile,
   ChevronUp,
   ChevronDown,
 } from 'lucide-angular';
+
+/** List of icon names in use – for documentation and tracking. */
+export const ICONS_IN_USE = [
+  'Heart',
+  'MessageCircle',
+  'Send',
+  'Bookmark',
+  'MoreHorizontal',
+  'BadgeCheck',
+  'Camera',
+  'Home',
+  'Clapperboard',
+  'Search',
+  'Compass',
+  'SquarePlus',
+  'User',
+  'ChevronLeft',
+  'ChevronRight',
+  'X',
+  'CheckCheck',
+  'PenSquare',
+  'Info',
+  'Phone',
+  'Video',
+  'Image',
+  'Smile',
+  'ChevronUp',
+  'ChevronDown',
+] as const;
 ```
 
 ---
@@ -738,36 +804,68 @@ To match Instagram Reels experience, the right "Suggested for you" sidebar is hi
 `main-layout.component.ts`
 
 ```ts
-readonly isImmersiveRoute = toSignal(
-  this.router.events.pipe(
-    filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-    map((event) => event.urlAfterRedirects),
-    startWith(this.router.url),
-    map((url) => {
-      const [path] = url.split('?');
-      return path === '/messages' || path === '/reels';
-    })
-  ),
-  {
-    initialValue:
-      this.router.url.split('?')[0] === '/messages' ||
-      this.router.url.split('?')[0] === '/reels',
-  }
-);
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { filter, map, startWith } from 'rxjs';
+import { LeftSidebarComponent } from '../left-sidebar/left-sidebar.component';
+import { RightSidebarComponent } from '../right-sidebar/right-sidebar.component';
+import { SearchSidebarComponent } from '../../features/search/search-sidebar.component';
+import { NotificationsSidebarComponent } from '../../features/notifications/notifications-sidebar.component';
+
+@Component({
+  selector: 'app-main-layout',
+  standalone: true,
+  imports: [
+    LeftSidebarComponent,
+    RightSidebarComponent,
+    RouterOutlet,
+    SearchSidebarComponent,
+    NotificationsSidebarComponent,
+  ],
+  templateUrl: './main-layout.component.html',
+  styleUrl: './main-layout.component.scss',
+})
+export class MainLayoutComponent {
+  private readonly router = inject(Router);
+
+  readonly isImmersiveRoute = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => event.urlAfterRedirects),
+      startWith(this.router.url),
+      map((url) => {
+        const [path] = url.split('?');
+        return path === '/messages' || path === '/reels';
+      })
+    ),
+    {
+      initialValue:
+        this.router.url.split('?')[0] === '/messages' ||
+        this.router.url.split('?')[0] === '/reels',
+    }
+  );
+}
 ```
 
 `main-layout.component.html`
 
 ```html
-<main class="layout__center" [class.layout__center--full-width]="isImmersiveRoute()">
-  <router-outlet />
-</main>
-
-@if (!isImmersiveRoute()) {
-  <aside class="layout__right">
-    <app-right-sidebar />
+<div class="layout">
+  <aside class="layout__left">
+    <app-left-sidebar />
   </aside>
-}
+  <main class="layout__center" [class.layout__center--full-width]="isImmersiveRoute()">
+    <router-outlet />
+  </main>
+  @if (!isImmersiveRoute()) {
+    <aside class="layout__right">
+      <app-right-sidebar />
+    </aside>
+  }
+  <app-search-sidebar />
+  <app-notifications-sidebar />
+</div>
 ```
 
 ---

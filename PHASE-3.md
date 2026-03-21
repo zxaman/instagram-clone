@@ -1,5 +1,7 @@
 # Phase 3 – Stories Section (What We Did & Why)
 
+> Sync note (2026-03-21): Phase 3 code blocks were checked and kept as the intended Phase 3 snapshot. Later shared-file changes are documented in Phase 5+ and Phase 7/8.
+
 This document explains **everything we did in Phase 3** in simple terms and gives the **full code** for each file you created or updated, so you can follow phase by phase.
 
 ---
