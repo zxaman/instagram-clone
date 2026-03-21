@@ -1,0 +1,223 @@
+<section class="create">
+  <div class="create__shell" aria-label="Create post flow">
+    <header class="create__topbar">
+      <button
+        type="button"
+        class="create__topbar-btn"
+        [class.create__topbar-btn--hidden]="step() === 'select'"
+        (click)="goBack()"
+      >
+        Back
+      </button>
+
+      <h1 class="create__topbar-title">{{ stepTitle() }}</h1>
+
+      @if (step() === 'details') {
+        <button type="button" class="create__topbar-btn create__topbar-btn--primary" [disabled]="!canPublish()" (click)="publish()">
+          Share
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="create__topbar-btn create__topbar-btn--primary"
+          [disabled]="step() === 'select' && !canGoNextFromSelect()"
+          (click)="goNext()"
+        >
+          Next
+        </button>
+      }
+    </header>
+
+    @if (step() === 'select') {
+      <section class="create__stage create__stage--select">
+        <div class="create__dropzone">
+          <p class="create__dropzone-title">Drag photos and videos here</p>
+          <p class="create__dropzone-subtitle">or upload from your device / URL</p>
+
+          <input id="create-file" type="file" accept="image/*" class="create__file-input" (change)="onFileSelected($event)" />
+
+          <label for="create-file" class="create__btn create__btn--primary">Select from computer</label>
+
+          <div class="create__url-row">
+            <input
+              type="url"
+              class="create__input"
+              placeholder="Paste image URL"
+              [value]="selectUrlDraft()"
+              (input)="setSelectUrlDraft($any($event.target).value)"
+            />
+            <button type="button" class="create__btn create__btn--ghost" (click)="applyUrlDraft()">Use URL</button>
+          </div>
+
+          <p class="create__source">Selected: {{ imageSourceLabel() }}</p>
+        </div>
+      </section>
+    }
+
+    @if (step() === 'crop') {
+      <section class="create__stage create__stage--crop">
+        <div class="create__crop-preview">
+          @if (hasSelectedImage()) {
+            <img
+              [src]="imageUrl()"
+              alt="Crop preview"
+              class="create__preview-image"
+              [class.create__preview-image--square]="aspectRatio() === 'square'"
+              [class.create__preview-image--portrait]="aspectRatio() === 'portrait'"
+              [class.create__preview-image--landscape]="aspectRatio() === 'landscape'"
+              width="620"
+              height="620"
+            />
+          }
+        </div>
+
+        <div class="create__crop-controls">
+          <p class="create__field-label">Aspect ratio</p>
+          <div class="create__ratio-row">
+            <button
+              type="button"
+              class="create__ratio-btn"
+              [class.create__ratio-btn--active]="aspectRatio() === 'square'"
+              (click)="setAspectRatio('square')"
+            >
+              1:1
+            </button>
+            <button
+              type="button"
+              class="create__ratio-btn"
+              [class.create__ratio-btn--active]="aspectRatio() === 'portrait'"
+              (click)="setAspectRatio('portrait')"
+            >
+              4:5
+            </button>
+            <button
+              type="button"
+              class="create__ratio-btn"
+              [class.create__ratio-btn--active]="aspectRatio() === 'landscape'"
+              (click)="setAspectRatio('landscape')"
+            >
+              16:9
+            </button>
+          </div>
+        </div>
+      </section>
+    }
+
+    @if (step() === 'details') {
+      <section class="create__stage create__stage--details">
+        <div class="create__details-preview">
+          <img
+            [src]="imageUrl()"
+            alt="Post preview"
+            class="create__preview-image"
+            [class.create__preview-image--square]="aspectRatio() === 'square'"
+            [class.create__preview-image--portrait]="aspectRatio() === 'portrait'"
+            [class.create__preview-image--landscape]="aspectRatio() === 'landscape'"
+            width="540"
+            height="675"
+          />
+        </div>
+
+        <div class="create__details-form">
+          <label class="create__field-label" for="caption">Caption</label>
+          <textarea
+            id="caption"
+            class="create__textarea"
+            rows="7"
+            maxlength="2200"
+            placeholder="Write a caption..."
+            [value]="caption()"
+            (input)="setCaption($any($event.target).value)"
+          ></textarea>
+          <p class="create__counter">{{ captionLength() }} / {{ captionLimit }}</p>
+
+          <label class="create__field-label" for="location">Add location</label>
+          <input
+            id="location"
+            type="text"
+            class="create__input"
+            placeholder="Add location"
+            [value]="location()"
+            (input)="setLocation($any($event.target).value)"
+          />
+
+          <label class="create__field-label" for="collaborators">Tag collaborators</label>
+          <input
+            id="collaborators"
+            type="text"
+            class="create__input"
+            placeholder="username1, username2"
+            [value]="collaborators()"
+            (input)="setCollaborators($any($event.target).value)"
+          />
+
+          <label class="create__field-label" for="privacy">Audience</label>
+          <select
+            id="privacy"
+            class="create__select"
+            [value]="privacy()"
+            (change)="setPrivacy($any($event.target).value)"
+          >
+            @for (option of privacyOptions; track option) {
+              <option [value]="option">{{ option }}</option>
+            }
+          </select>
+
+          <label class="create__toggle" for="comments-enabled">
+            <input
+              id="comments-enabled"
+              type="checkbox"
+              [checked]="commentsEnabled()"
+              (change)="toggleComments()"
+            />
+            <span>Allow comments</span>
+          </label>
+
+          <label class="create__toggle" for="hide-like-count">
+            <input
+              id="hide-like-count"
+              type="checkbox"
+              [checked]="hideLikeCount()"
+              (change)="toggleHideLikeCount()"
+            />
+            <span>Hide like and view counts on this post</span>
+          </label>
+
+          <button type="button" class="create__btn create__btn--ghost" (click)="discardDraft()">Discard draft</button>
+        </div>
+      </section>
+    }
+  </div>
+
+  @if (publishedPosts().length > 0) {
+    <section class="create__recent" aria-label="Recently shared posts">
+      <h2 class="create__recent-title">Recently shared</h2>
+      <div class="create__recent-grid">
+        @for (item of publishedPosts(); track item.id) {
+          <article class="create__recent-card">
+            <img
+              [src]="item.imageUrl"
+              [alt]="item.caption"
+              class="create__recent-image"
+              width="220"
+              height="220"
+            />
+            <div class="create__recent-meta">
+              <p class="create__recent-caption">{{ item.caption }}</p>
+              <p class="create__recent-details">
+                {{ item.privacy }}
+                @if (item.location) {
+                  · {{ item.location }}
+                }
+                @if (item.hideLikeCount) {
+                  · Likes hidden
+                }
+                · {{ relativeTime(item.createdAt) }}
+              </p>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
+</section>

@@ -17,7 +17,7 @@ export const routes: Routes = [
       { path: 'explore', component: ExploreComponent },
       { path: 'reels', component: ReelsComponent },
       { path: 'messages', component: MessagesComponent },
-      { path: 'create', component: PlaceholderComponent, data: { pageName: 'Create' } },
+      { path: 'create', redirectTo: '', pathMatch: 'full' },
       { path: 'profile', component: ProfileComponent },
     ],
   },

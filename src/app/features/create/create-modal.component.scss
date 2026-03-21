@@ -1,0 +1,71 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.create-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  background: rgb(0 0 0 / 68%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-3;
+}
+
+.create-modal__dialog {
+  width: min(980px, calc(100vw - 2rem));
+  max-height: calc(100vh - 1.5rem);
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.create-modal__close {
+  all: unset;
+  position: fixed;
+  right: $space-4;
+  top: $space-4;
+  width: 40px;
+  height: 40px;
+  color: $text-primary;
+  cursor: pointer;
+  @include flex-center;
+}
+
+.create-toast {
+  position: fixed;
+  left: $space-4;
+  bottom: $space-4;
+  z-index: 145;
+  background: rgb(38 38 38 / 95%);
+  color: $text-primary;
+  border: 1px solid $border-secondary;
+  border-radius: 10px;
+  padding: $space-2 $space-3;
+  font-size: $font-size-sm;
+  box-shadow: 0 12px 28px rgb(0 0 0 / 40%);
+}
+
+@media (max-width: 760px) {
+  .create-modal {
+    padding: $space-2;
+    align-items: stretch;
+  }
+
+  .create-modal__dialog {
+    width: 100%;
+    max-height: calc(100vh - 0.5rem);
+    border-radius: 0;
+  }
+
+  .create-modal__close {
+    right: $space-2;
+    top: $space-2;
+  }
+
+  .create-toast {
+    left: $space-2;
+    right: $space-2;
+    bottom: $space-2;
+    text-align: center;
+  }
+}
