@@ -33,8 +33,8 @@ Build a full-featured **Direct Messages** page that faithfully replicates the In
 | 7 | `src/app/features/messages/messages.component.html` | **Create** |
 | 8 | `src/app/features/messages/messages.component.scss` | **Create** |
 | 9 | `src/app/app.routes.ts` | **Modify** – `/messages` route |
-| 10 | `src/app/layout/main-layout/main-layout.component.ts` | **Modify** – detect `/messages` route via signal |
-| 11 | `src/app/layout/main-layout/main-layout.component.html` | **Modify** – hide right sidebar on `/messages` |
+| 10 | `src/app/layout/main-layout/main-layout.component.ts` | **Modify** – immersive route signal (messages + reels) |
+| 11 | `src/app/layout/main-layout/main-layout.component.html` | **Modify** – hide right sidebar on immersive routes |
 | 12 | `src/app/layout/main-layout/main-layout.component.scss` | **Modify** – full-width center content on `/messages` |
 
 ---
@@ -289,11 +289,13 @@ export { notifications, type Notification, type NotificationType } from './notif
 export { conversations, type Conversation } from './conversations';
 export { messages, type Message } from './messages';
 export { notes, type Note } from './notes';
+export { reels, type Reel } from './reels';
 ```
 
 ### 5. Register new icons — `src/app/core/icons.ts`
 
-Seven new icons for the messaging UI (`PenSquare`, `Info`, `Phone`, `Video`, `Image`, `Smile`, `ChevronDown`).
+Messages added seven icons for DM UI (`PenSquare`, `Info`, `Phone`, `Video`, `Image`, `Smile`, `ChevronDown`).
+The file below shows the current, complete icon registry (including `ChevronUp` added later for Reels).
 
 ```ts
 /**
@@ -335,6 +337,7 @@ export {
   Video,
   Image,
   Smile,
+  ChevronUp,
   ChevronDown,
 } from 'lucide-angular';
 
@@ -363,6 +366,7 @@ export const ICONS_IN_USE = [
   'Video',
   'Image',
   'Smile',
+  'ChevronUp',
   'ChevronDown',
 ] as const;
 ```
@@ -1351,6 +1355,7 @@ import { MainLayoutComponent } from './layout/main-layout/main-layout.component'
 import { HomeComponent } from './features/home/home.component';
 import { PlaceholderComponent } from './features/placeholder/placeholder.component';
 import { MessagesComponent } from './features/messages/messages.component';
+import { ReelsComponent } from './features/reels/reels.component';
 export const routes: Routes = [
   {
     path: '',
@@ -1360,7 +1365,7 @@ export const routes: Routes = [
       { path: 'search', redirectTo: '', pathMatch: 'full' },
       { path: 'notifications', redirectTo: '', pathMatch: 'full' },
       { path: 'explore', component: PlaceholderComponent, data: { pageName: 'Explore' } },
-      { path: 'reels', component: PlaceholderComponent, data: { pageName: 'Reels' } },
+      { path: 'reels', component: ReelsComponent },
       { path: 'messages', component: MessagesComponent },
       { path: 'create', component: PlaceholderComponent, data: { pageName: 'Create' } },
       { path: 'profile', component: PlaceholderComponent, data: { pageName: 'Profile' } },
@@ -1370,9 +1375,9 @@ export const routes: Routes = [
 ];
 ```
 
-### 10. Layout override for Messages page — `src/app/layout/main-layout/*`
+### 10. Layout override for immersive pages — `src/app/layout/main-layout/*`
 
-To match Instagram DM layout, the global right sidebar (which contains "Suggested for you") must not render on `/messages`.
+To match Instagram DM/Reels immersive layout, the global right sidebar (which contains "Suggested for you") must not render on `/messages` and `/reels`.
 
 `main-layout.component.ts`
 
@@ -1402,14 +1407,21 @@ import { NotificationsSidebarComponent } from '../../features/notifications/noti
 export class MainLayoutComponent {
   private readonly router = inject(Router);
 
-  readonly isMessagesRoute = toSignal(
+  readonly isImmersiveRoute = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
       map((event) => event.urlAfterRedirects),
       startWith(this.router.url),
-      map((url) => url === '/messages')
+      map((url) => {
+        const [path] = url.split('?');
+        return path === '/messages' || path === '/reels';
+      })
     ),
-    { initialValue: this.router.url === '/messages' }
+    {
+      initialValue:
+        this.router.url.split('?')[0] === '/messages' ||
+        this.router.url.split('?')[0] === '/reels',
+    }
   );
 }
 ```
@@ -1421,15 +1433,14 @@ export class MainLayoutComponent {
   <aside class="layout__left">
     <app-left-sidebar />
   </aside>
-<main class="layout__center" [class.layout__center--full-width]="isMessagesRoute()">
-  <router-outlet />
-</main>
-
-@if (!isMessagesRoute()) {
-  <aside class="layout__right">
-    <app-right-sidebar />
-  </aside>
-}
+  <main class="layout__center" [class.layout__center--full-width]="isImmersiveRoute()">
+    <router-outlet />
+  </main>
+  @if (!isImmersiveRoute()) {
+    <aside class="layout__right">
+      <app-right-sidebar />
+    </aside>
+  }
   <app-search-sidebar />
   <app-notifications-sidebar />
 </div>
@@ -1540,7 +1551,7 @@ export class MainLayoutComponent {
 | "You: " preview prefix | `getPreviewText()` checks `lastMessageSenderId` |
 | Blue unread dot | 8px accent circle instead of number badge |
 | Empty state | Circled Send icon + "Your messages" + blue "Send message" button |
-| No "Suggested for you" on Messages | Right sidebar is conditionally hidden when route is `/messages` |
+| No "Suggested for you" on Messages | Right sidebar is hidden for immersive routes (`/messages`, `/reels`) |
 | Chat header | Avatar, display name, "Active now", phone/video/info actions |
 | Chat bubbles | Rounded, accent-colored for own messages, elevated bg for others |
 | Message input | Pill-shaped, emoji/image icons, send button appears on input |

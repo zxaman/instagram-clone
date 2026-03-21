@@ -1,5 +1,7 @@
 # Phase 6 – Notifications (Sidebar)
 
+> Sync note (2026-03-21): Updated shared-file snippets to current cumulative project state for easier project recreation.
+
 This document describes **Phase 6**: **Notifications** as a **sidebar overlay** (same pattern as Search), not a full page.
 
 ---
@@ -178,6 +180,10 @@ export { posts, type Post } from './posts';
 export { comments, type Comment } from './comments';
 export { suggestions, type Suggestion } from './suggestions';
 export { notifications, type Notification, type NotificationType } from './notifications';
+export { conversations, type Conversation } from './conversations';
+export { messages, type Message } from './messages';
+export { notes, type Note } from './notes';
+export { reels, type Reel } from './reels';
 ```
 
 ---
@@ -663,12 +669,14 @@ export class MainLayoutComponent {}
   <aside class="layout__left">
     <app-left-sidebar />
   </aside>
-  <main class="layout__center">
+  <main class="layout__center" [class.layout__center--full-width]="isImmersiveRoute()">
     <router-outlet />
   </main>
-  <aside class="layout__right">
-    <app-right-sidebar />
-  </aside>
+  @if (!isImmersiveRoute()) {
+    <aside class="layout__right">
+      <app-right-sidebar />
+    </aside>
+  }
   <app-search-sidebar />
   <app-notifications-sidebar />
 </div>
@@ -683,6 +691,8 @@ import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { HomeComponent } from './features/home/home.component';
 import { PlaceholderComponent } from './features/placeholder/placeholder.component';
+import { MessagesComponent } from './features/messages/messages.component';
+import { ReelsComponent } from './features/reels/reels.component';
 
 export const routes: Routes = [
   {
@@ -693,8 +703,8 @@ export const routes: Routes = [
       { path: 'search', redirectTo: '', pathMatch: 'full' },
       { path: 'notifications', redirectTo: '', pathMatch: 'full' },
       { path: 'explore', component: PlaceholderComponent, data: { pageName: 'Explore' } },
-      { path: 'reels', component: PlaceholderComponent, data: { pageName: 'Reels' } },
-      { path: 'messages', component: PlaceholderComponent, data: { pageName: 'Messages' } },
+      { path: 'reels', component: ReelsComponent },
+      { path: 'messages', component: MessagesComponent },
       { path: 'create', component: PlaceholderComponent, data: { pageName: 'Create' } },
       { path: 'profile', component: PlaceholderComponent, data: { pageName: 'Profile' } },
     ],
@@ -705,17 +715,9 @@ export const routes: Routes = [
 
 ---
 
-### Updated in Phase 6: `src/app/core/icons.ts` – add CheckCheck
+### Updated in Phase 6: `src/app/core/icons.ts` – icon registry note
 
-Add **CheckCheck** to the exports and to **ICONS_IN_USE**:
-
-```ts
-// In the export block, add:
-CheckCheck,
-
-// In ICONS_IN_USE array, add:
-'CheckCheck',
-```
+Phase 6 introduced `CheckCheck`; later phases added more icons. Current registry in the project includes all Phase 6 icons plus later additions (`PenSquare`, `Info`, `Phone`, `Video`, `Image`, `Smile`, `ChevronUp`, `ChevronDown`).
 
 ---
 

@@ -1,5 +1,7 @@
 # Phase 2 – Layout Shell (What We Did & Why)
 
+> Sync note (2026-03-21): Phase 2 snippets remain the historical Phase 2 state. A current cumulative route snapshot is added below for recreating the latest project.
+
 This document explains **everything we did in Phase 2** in simple terms so you can make videos from it. Each section can become a video or part of a video.
 
 ---
@@ -242,6 +244,35 @@ export const routes: Routes = [
       { path: 'reels', component: PlaceholderComponent, data: { pageName: 'Reels' } },
       { path: 'messages', component: PlaceholderComponent, data: { pageName: 'Messages' } },
       { path: 'notifications', component: PlaceholderComponent, data: { pageName: 'Notifications' } },
+      { path: 'create', component: PlaceholderComponent, data: { pageName: 'Create' } },
+      { path: 'profile', component: PlaceholderComponent, data: { pageName: 'Profile' } },
+    ],
+  },
+  { path: '**', redirectTo: '' },
+];
+```
+
+#### `src/app/app.routes.ts` (current cumulative snapshot)
+
+```ts
+import { Routes } from '@angular/router';
+import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
+import { HomeComponent } from './features/home/home.component';
+import { PlaceholderComponent } from './features/placeholder/placeholder.component';
+import { MessagesComponent } from './features/messages/messages.component';
+import { ReelsComponent } from './features/reels/reels.component';
+
+export const routes: Routes = [
+  {
+    path: '',
+    component: MainLayoutComponent,
+    children: [
+      { path: '', component: HomeComponent },
+      { path: 'search', redirectTo: '', pathMatch: 'full' },
+      { path: 'notifications', redirectTo: '', pathMatch: 'full' },
+      { path: 'explore', component: PlaceholderComponent, data: { pageName: 'Explore' } },
+      { path: 'reels', component: ReelsComponent },
+      { path: 'messages', component: MessagesComponent },
       { path: 'create', component: PlaceholderComponent, data: { pageName: 'Create' } },
       { path: 'profile', component: PlaceholderComponent, data: { pageName: 'Profile' } },
     ],

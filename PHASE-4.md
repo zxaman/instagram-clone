@@ -1,5 +1,7 @@
 # Phase 4 – Feed (Posts & Comments)
 
+> Sync note (2026-03-21): Phase 4 snippets were reviewed and preserved as the Phase 4 end-state. Cumulative shared-file updates are shown in later phases.
+
 This document explains **what we did in Phase 4**: adding the **feed** with a post list, post component (header, image, caption, like/comment/share), and comments from data.
 
 ---

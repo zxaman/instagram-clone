@@ -1,5 +1,7 @@
 # Phase 5 – Search (Sidebar)
 
+> Sync note (2026-03-21): Added current cumulative snapshots for shared files that changed in later phases.
+
 This document describes **Phase 5**: **Search** as a **sidebar overlay** (not a full page).
 
 ---
@@ -645,13 +647,16 @@ export class MainLayoutComponent {}
   <aside class="layout__left">
     <app-left-sidebar />
   </aside>
-  <main class="layout__center">
+  <main class="layout__center" [class.layout__center--full-width]="isImmersiveRoute()">
     <router-outlet />
   </main>
-  <aside class="layout__right">
-    <app-right-sidebar />
-  </aside>
+  @if (!isImmersiveRoute()) {
+    <aside class="layout__right">
+      <app-right-sidebar />
+    </aside>
+  }
   <app-search-sidebar />
+  <app-notifications-sidebar />
 </div>
 ```
 
@@ -664,6 +669,8 @@ import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { HomeComponent } from './features/home/home.component';
 import { PlaceholderComponent } from './features/placeholder/placeholder.component';
+import { MessagesComponent } from './features/messages/messages.component';
+import { ReelsComponent } from './features/reels/reels.component';
 
 export const routes: Routes = [
   {
@@ -672,10 +679,10 @@ export const routes: Routes = [
     children: [
       { path: '', component: HomeComponent },
       { path: 'search', redirectTo: '', pathMatch: 'full' },
+      { path: 'notifications', redirectTo: '', pathMatch: 'full' },
       { path: 'explore', component: PlaceholderComponent, data: { pageName: 'Explore' } },
-      { path: 'reels', component: PlaceholderComponent, data: { pageName: 'Reels' } },
-      { path: 'messages', component: PlaceholderComponent, data: { pageName: 'Messages' } },
-      { path: 'notifications', component: PlaceholderComponent, data: { pageName: 'Notifications' } },
+      { path: 'reels', component: ReelsComponent },
+      { path: 'messages', component: MessagesComponent },
       { path: 'create', component: PlaceholderComponent, data: { pageName: 'Create' } },
       { path: 'profile', component: PlaceholderComponent, data: { pageName: 'Profile' } },
     ],

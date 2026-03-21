@@ -1,0 +1,115 @@
+<section class="profile">
+  <header class="profile__header">
+    <div class="profile__avatar-wrap">
+      <img
+        [src]="currentUser.avatarUrl"
+        [alt]="currentUser.displayName"
+        class="profile__avatar"
+        width="150"
+        height="150"
+      />
+    </div>
+
+    <div class="profile__meta">
+      <div class="profile__top-row">
+        <h1 class="profile__username">{{ currentUser.username }}</h1>
+        <button type="button" class="profile__action-btn">Edit profile</button>
+        <button type="button" class="profile__action-btn profile__action-btn--ghost">View archive</button>
+      </div>
+
+      <ul class="profile__stats" aria-label="Profile stats">
+        <li class="profile__stat-item">
+          <span class="profile__stat-value">{{ postsCount() }}</span>
+          <span class="profile__stat-label">posts</span>
+        </li>
+        <li class="profile__stat-item">
+          <span class="profile__stat-value">{{ formatCount(1284) }}</span>
+          <span class="profile__stat-label">followers</span>
+        </li>
+        <li class="profile__stat-item">
+          <span class="profile__stat-value">{{ formatCount(412) }}</span>
+          <span class="profile__stat-label">following</span>
+        </li>
+      </ul>
+
+      <div class="profile__bio">
+        <h2 class="profile__display-name">{{ currentUser.displayName }}</h2>
+        <p class="profile__bio-text">Frontend developer building an Instagram clone with Angular.</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="profile__highlights" aria-label="Story highlights">
+    <button type="button" class="profile__highlight-item" aria-label="New highlight">
+      <span class="profile__highlight-ring">
+        <span class="profile__highlight-plus">+</span>
+      </span>
+      <span class="profile__highlight-label">New</span>
+    </button>
+  </section>
+
+  <nav class="profile__tabs" aria-label="Profile content tabs">
+    <button
+      type="button"
+      class="profile__tab"
+      [class.profile__tab--active]="activeTab() === 'posts'"
+      (click)="setTab('posts')"
+      aria-label="Posts"
+    >
+      <span class="profile__tab-icon profile__tab-icon--posts" aria-hidden="true"></span>
+      <span class="profile__tab-text">POSTS</span>
+    </button>
+    <button
+      type="button"
+      class="profile__tab"
+      [class.profile__tab--active]="activeTab() === 'saved'"
+      (click)="setTab('saved')"
+      aria-label="Saved"
+    >
+      <span class="profile__tab-icon profile__tab-icon--saved" aria-hidden="true"></span>
+      <span class="profile__tab-text">SAVED</span>
+    </button>
+    <button
+      type="button"
+      class="profile__tab"
+      [class.profile__tab--active]="activeTab() === 'tagged'"
+      (click)="setTab('tagged')"
+      aria-label="Tagged"
+    >
+      <span class="profile__tab-icon profile__tab-icon--tagged" aria-hidden="true"></span>
+      <span class="profile__tab-text">TAGGED</span>
+    </button>
+  </nav>
+
+  @if (visiblePosts().length > 0) {
+    <div class="profile__grid">
+      @for (post of visiblePosts(); track post.id) {
+        <article class="profile__grid-item">
+          <img
+            [src]="post.imageUrl"
+            [alt]="post.caption"
+            class="profile__grid-image"
+            width="320"
+            height="320"
+          />
+
+          <div class="profile__grid-overlay" aria-hidden="true">
+            <span class="profile__overlay-metric">
+              <lucide-icon [img]="Heart" [size]="16" [strokeWidth]="2.25"></lucide-icon>
+              <span>{{ formatCount(post.likesCount) }}</span>
+            </span>
+            <span class="profile__overlay-metric">
+              <lucide-icon [img]="MessageCircle" [size]="16" [strokeWidth]="2.25"></lucide-icon>
+              <span>{{ formatCount(post.commentsCount) }}</span>
+            </span>
+          </div>
+        </article>
+      }
+    </div>
+  } @else {
+    <div class="profile__empty">
+      <h3 class="profile__empty-title">No posts yet</h3>
+      <p class="profile__empty-text">New posts will appear here.</p>
+    </div>
+  }
+</section>
