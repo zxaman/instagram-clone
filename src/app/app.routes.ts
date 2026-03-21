@@ -5,6 +5,7 @@ import { PlaceholderComponent } from './features/placeholder/placeholder.compone
 import { MessagesComponent } from './features/messages/messages.component';
 import { ReelsComponent } from './features/reels/reels.component';
 import { ProfileComponent } from './features/profile/profile.component';
+import { ExploreComponent } from './features/explore/explore.component';
 export const routes: Routes = [
   {
     path: '',
@@ -13,7 +14,7 @@ export const routes: Routes = [
       { path: '', component: HomeComponent },
       { path: 'search', redirectTo: '', pathMatch: 'full' },
       { path: 'notifications', redirectTo: '', pathMatch: 'full' },
-      { path: 'explore', component: PlaceholderComponent, data: { pageName: 'Explore' } },
+      { path: 'explore', component: ExploreComponent },
       { path: 'reels', component: ReelsComponent },
       { path: 'messages', component: MessagesComponent },
       { path: 'create', component: PlaceholderComponent, data: { pageName: 'Create' } },

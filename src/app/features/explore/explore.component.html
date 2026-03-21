@@ -1,0 +1,162 @@
+<section class="explore">
+  @if (visibleItems.length > 0) {
+    <div class="explore__grid">
+      @for (item of visibleItems; track item.id) {
+        <article
+          class="explore__tile"
+          [class.explore__tile--portrait]="item.size === 'portrait'"
+          [class.explore__tile--wide]="item.size === 'wide'"
+        >
+          <button
+            type="button"
+            class="explore__tile-button"
+            (click)="openModal(item)"
+            [attr.aria-label]="'Open post by @' + usernameById(item.userId)"
+          >
+            <img
+              [src]="item.imageUrl"
+              [alt]="item.caption"
+              class="explore__image"
+              width="320"
+              height="320"
+            />
+
+            @if (item.mediaType === 'reel') {
+              <span class="explore__reel-badge" aria-hidden="true">
+                <lucide-icon [img]="Clapperboard" [size]="14"></lucide-icon>
+              </span>
+            }
+
+            <div class="explore__overlay" aria-hidden="true">
+              <div class="explore__metrics">
+                <span class="explore__metric">
+                  <lucide-icon [img]="Heart" [size]="16"></lucide-icon>
+                  <span>{{ formatCount(item.likesCount) }}</span>
+                </span>
+                <span class="explore__metric">
+                  <lucide-icon [img]="MessageCircle" [size]="16"></lucide-icon>
+                  <span>{{ formatCount(item.commentsCount) }}</span>
+                </span>
+              </div>
+              <p class="explore__meta">@{{ usernameById(item.userId) }}</p>
+            </div>
+          </button>
+        </article>
+      }
+    </div>
+  } @else {
+    <div class="explore__empty">
+      <h2 class="explore__empty-title">Nothing here yet</h2>
+      <p class="explore__empty-text">Try another filter to discover more posts.</p>
+    </div>
+  }
+
+  @if (selectedItem(); as item) {
+    <div class="explore-modal" role="dialog" aria-modal="true" aria-label="Explore post" (click)="closeModal()">
+      <div class="explore-modal__panel" (click)="$event.stopPropagation()">
+        <div class="explore-modal__media-wrap">
+          <img
+            [src]="item.imageUrl"
+            [alt]="item.caption"
+            class="explore-modal__media"
+            width="920"
+            height="920"
+          />
+
+          @if (visibleItems.length > 1) {
+            <button
+              type="button"
+              class="explore-modal__nav-btn explore-modal__nav-btn--prev"
+              aria-label="Previous post"
+              (click)="showPreviousItem()"
+            >
+              &#10094;
+            </button>
+            <button
+              type="button"
+              class="explore-modal__nav-btn explore-modal__nav-btn--next"
+              aria-label="Next post"
+              (click)="showNextItem()"
+            >
+              &#10095;
+            </button>
+          }
+
+          <button
+            type="button"
+            class="explore-modal__like-fab"
+            [class.explore-modal__like-fab--active]="isModalItemLiked(item.id)"
+            aria-label="Toggle like"
+            (click)="toggleModalLike()"
+          >
+            <lucide-icon [img]="Heart" [size]="18"></lucide-icon>
+          </button>
+
+          <div class="explore-modal__heart-burst" [class.explore-modal__heart-burst--active]="likeBurstActive()" aria-hidden="true">
+            <lucide-icon [img]="Heart" [size]="74" [strokeWidth]="2.2"></lucide-icon>
+          </div>
+        </div>
+
+        <aside class="explore-modal__side">
+          <header class="explore-modal__header">
+            <div class="explore-modal__author">
+              <img
+                [src]="userById(item.userId)?.avatarUrl"
+                [alt]="usernameById(item.userId)"
+                class="explore-modal__avatar"
+                width="32"
+                height="32"
+              />
+              <p class="explore-modal__username">{{ usernameById(item.userId) }}</p>
+            </div>
+
+            <button type="button" class="explore-modal__icon-btn" aria-label="Close preview" (click)="closeModal()">
+              <lucide-icon [img]="X" [size]="18"></lucide-icon>
+            </button>
+          </header>
+
+          <div class="explore-modal__comments">
+            <article class="explore-modal__comment explore-modal__comment--caption">
+              <p class="explore-modal__comment-user">{{ usernameById(item.userId) }}</p>
+              <p class="explore-modal__comment-text">{{ item.caption }}</p>
+            </article>
+
+            @for (comment of modalComments(); track comment.id) {
+              <article class="explore-modal__comment">
+                <p class="explore-modal__comment-user">{{ usernameById(comment.userId) }}</p>
+                <p class="explore-modal__comment-text">{{ comment.text }}</p>
+                <p class="explore-modal__comment-time">{{ relativeTime(comment.timestamp) }}</p>
+              </article>
+            }
+          </div>
+
+          <footer class="explore-modal__footer">
+            <div class="explore-modal__stats">
+              <span>
+                <lucide-icon [img]="Heart" [size]="16"></lucide-icon>
+                {{ formatCount(modalLikesCount(item)) }}
+              </span>
+              <span>
+                <lucide-icon [img]="MessageCircle" [size]="16"></lucide-icon>
+                {{ formatCount(item.commentsCount + modalComments().length) }}
+              </span>
+            </div>
+
+            <form class="explore-modal__composer" (submit)="$event.preventDefault(); submitComment()">
+              <input
+                type="text"
+                class="explore-modal__input"
+                placeholder="Add a comment..."
+                [value]="draftComment()"
+                (input)="setDraftComment($any($event.target).value)"
+              />
+              <button type="submit" class="explore-modal__icon-btn" aria-label="Post comment">
+                <lucide-icon [img]="Send" [size]="16"></lucide-icon>
+              </button>
+            </form>
+          </footer>
+        </aside>
+      </div>
+    </div>
+  }
+</section>
