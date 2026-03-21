@@ -6,6 +6,7 @@ import { LeftSidebarComponent } from '../left-sidebar/left-sidebar.component';
 import { RightSidebarComponent } from '../right-sidebar/right-sidebar.component';
 import { SearchSidebarComponent } from '../../features/search/search-sidebar.component';
 import { NotificationsSidebarComponent } from '../../features/notifications/notifications-sidebar.component';
+import { CreateModalComponent } from '../../features/create/create-modal.component';
 
 @Component({
   selector: 'app-main-layout',
@@ -16,6 +17,7 @@ import { NotificationsSidebarComponent } from '../../features/notifications/noti
     RouterOutlet,
     SearchSidebarComponent,
     NotificationsSidebarComponent,
+    CreateModalComponent,
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',

@@ -1,0 +1,17 @@
+@if (modal.isOpen()) {
+  <section class="create-modal" role="dialog" aria-modal="true" aria-label="Create post" (click)="close()">
+    <button type="button" class="create-modal__close" aria-label="Close create modal" (click)="close()">
+      <lucide-icon [img]="X" [size]="24"></lucide-icon>
+    </button>
+
+    <div class="create-modal__dialog" (click)="$event.stopPropagation()">
+      <app-create />
+    </div>
+  </section>
+}
+
+@if (modal.toastMessage(); as message) {
+  <div class="create-toast" role="status" aria-live="polite">
+    {{ message }}
+  </div>
+}

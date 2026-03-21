@@ -1,7 +1,7 @@
 <div class="home">
   <app-stories />
   <section class="home-feed">
-    @for (p of posts; track p.id) {
+    @for (p of posts(); track p.id) {
       @let author = getUserById(p.userId);
       @if (author) {
         <app-post
