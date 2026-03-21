@@ -30,14 +30,20 @@ export class MainLayoutComponent {
       startWith(this.router.url),
       map((url) => {
         const [path] = url.split('?');
-        return path === '/messages' || path === '/reels' || path === '/profile';
+        return (
+          path === '/messages' ||
+          path === '/reels' ||
+          path === '/profile' ||
+          path === '/explore'
+        );
       })
     ),
     {
       initialValue:
         this.router.url.split('?')[0] === '/messages' ||
         this.router.url.split('?')[0] === '/reels' ||
-        this.router.url.split('?')[0] === '/profile',
+        this.router.url.split('?')[0] === '/profile' ||
+        this.router.url.split('?')[0] === '/explore',
     }
   );
 }
